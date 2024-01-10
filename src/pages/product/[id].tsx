@@ -1,9 +1,5 @@
 import client from "@/api/client";
-import {
-  AddToCartDto,
-  ProductResponseDto,
-  settingsSchema,
-} from "@/types/swagger.types";
+import { ProductResponseDto, settingsSchema } from "@/types/swagger.types";
 import {
   BreadcrumbItem,
   Breadcrumbs,
@@ -44,16 +40,25 @@ export default function Product({
       return;
     }
 
-    await client.POST("/api/v1/shopping-cart/add", {
-      body: {
-        product: product._id,
-        choice: selectedChoice !== "" ? selectedChoice : undefined,
-        amount: quantity,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("shopping-jwt")}`,
-      },
-    });
+    const { data, error, response } = await client.POST(
+      "/api/v1/shopping-cart/add",
+      {
+        body: {
+          product: product._id,
+          choice: selectedChoice !== "" ? selectedChoice : undefined,
+          amount: quantity,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("shopping-jwt")}`,
+        },
+      }
+    );
+
+    if (response.status === 401) {
+      toast.error("กรุณาเข้าสู่ระบบก่อน", { position: "bottom-right" });
+      return;
+    }
+
     toast.success("เพิ่มสินค้าลงในรถเข็นแล้ว", { position: "bottom-right" });
   };
 

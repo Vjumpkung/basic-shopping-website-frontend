@@ -76,14 +76,16 @@ export default function Header({
 
         <NavbarContent justify="end">
           <NavbarItem>
-            <Link href="/cart">
-              <Image
-                src={`/shopping-cart.svg`}
-                width={32}
-                height={32}
-                alt="cart"
-              />
-            </Link>
+            {isLogin ? (
+              <Link href="/cart">
+                <Image
+                  src={`/shopping-cart.svg`}
+                  width={32}
+                  height={32}
+                  alt="cart"
+                />
+              </Link>
+            ) : null}
           </NavbarItem>
           <NavbarItem>
             {isLogin ? (
