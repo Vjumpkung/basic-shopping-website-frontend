@@ -5,7 +5,7 @@ import {
   settingsSchema,
 } from "@/types/swagger.types";
 import { Button, Card, CardHeader, Checkbox, Chip } from "@nextui-org/react";
-import { InferGetServerSidePropsType } from "next";
+import { InferGetStaticPropsType } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 
 export default function Cart({
   settings,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const [willOrder, setWillOrder] = useState<string[]>([]);
   const [cart, setCart] = useState<CartResponseDto[] | undefined>([]);
   const [trigger, setTrigger] = useState<boolean>(false);
@@ -66,12 +66,13 @@ export default function Cart({
     });
     toast.success("สั่งซื้อสินค้าสำเร็จแล้ว", { position: "bottom-right" });
     setTrigger(!trigger);
+    setWillOrder([]);
   }
 
   return (
     <main>
       <title>{settings?.name + " - บัญชีของฉัน"}</title>
-      <div className="w-full lg:w-1/2 xl:w-1/3 mx-auto px-5">
+      <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">รถเข็น</h2>
         <div className="grid grid-cols-1">
           {cart?.map((item) => {
@@ -88,7 +89,6 @@ export default function Cart({
                             ? willOrder.splice(willOrder.indexOf(item._id), 1)
                             : willOrder.push(item._id);
                           setWillOrder([...willOrder]);
-                          console.log(willOrder);
                         }}
                       />
                     </div>
@@ -106,9 +106,7 @@ export default function Cart({
                       </div>
                       <div className="pt-2">
                         <Link href={`/product/${item.product._id}`}>
-                          <p className="truncate max-w-96 text-xl">
-                            {item.product.name}
-                          </p>
+                          <p className="text-xl">{item.product.name}</p>
                         </Link>
                         {item.choice ? (
                           <p className="text-gray-500">
@@ -129,7 +127,7 @@ export default function Cart({
                         </p>
                       </div>
                     </div>
-                    <div className="flex">
+                    <div className="flex-none">
                       <button onClick={() => removeItemFromCart(item._id)}>
                         <Image
                           src={`/trash.svg`}
@@ -159,7 +157,7 @@ export default function Cart({
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

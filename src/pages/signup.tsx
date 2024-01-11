@@ -7,12 +7,12 @@ import NextImage from "next/image";
 import { useRegister } from "@/utils/register";
 import client from "@/api/client";
 import { settingsSchema } from "@/types/swagger.types";
-import { InferGetServerSidePropsType } from "next";
+import { InferGetServerSidePropsType, InferGetStaticPropsType } from "next";
 import { toast } from "react-toastify";
 
 export default function SignUp({
   settings,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -159,7 +159,7 @@ export default function SignUp({
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

@@ -59,22 +59,23 @@ export default function LightBox({
       {lightboxDisplay ? (
         <div
           id="lightbox"
+          className="fixed top-0 bottom-0 right-0 left-0 flex min-h-screen w-full flex-row items-center justify-between z-50"
           onClick={() => {
             hideLightBox();
             stateChanger(false);
           }}
         >
-          <button onClick={showPrev} className="pl-5">
-            <p className="font-medium text-6xl">{"<"}</p>
+          <button onClick={showPrev} className="sm:px-6 px-1">
+            <p className="font-medium md:text-6xl text-xl">{"<"}</p>
           </button>
           <Image
             radius="none"
             alt="lightbox"
-            id="lightbox-img"
+            className="object-scale-down h-screen mx-auto px-2 py-2"
             src={imageToShow}
           />
-          <button onClick={showNext} className="pr-5">
-            <p className="font-medium text-6xl">{">"}</p>
+          <button onClick={showNext} className="sm:px-6 px-1">
+            <p className="font-medium md:text-6xl text-xl">{">"}</p>
           </button>
         </div>
       ) : (

@@ -6,7 +6,7 @@ import {
 } from "@/types/swagger.types";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/react";
-import { InferGetServerSidePropsType } from "next";
+import { InferGetStaticPropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -45,7 +45,7 @@ async function fetchProduct() {
 
 export default function Home({
   settings,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const [products, setProducts] = useState<ProductResponseDto[] | undefined>(
     []
   );
@@ -115,7 +115,7 @@ export default function Home({
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

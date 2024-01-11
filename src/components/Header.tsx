@@ -96,7 +96,7 @@ export default function Header({
                     name={me?.username[0].toUpperCase()}
                     as="button"
                     className="transition-transform"
-                    color="primary"
+                    color={me?.role === 100 ? "primary" : "default"}
                     size="sm"
                   />
                 </DropdownTrigger>

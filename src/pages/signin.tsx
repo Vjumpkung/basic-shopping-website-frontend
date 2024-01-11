@@ -4,14 +4,14 @@ import { Button, Image, Input } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useLogin } from "@/utils/login";
-import { InferGetServerSidePropsType } from "next";
+import { InferGetStaticPropsType } from "next";
 import client from "@/api/client";
 import { settingsSchema } from "@/types/swagger.types";
 import Link from "next/link";
 
 export default function SignIn({
   settings,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -123,7 +123,7 @@ export default function SignIn({
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

@@ -15,7 +15,7 @@ import {
   Image,
 } from "@nextui-org/react";
 import NextImage from "next/image";
-import { InferGetServerSidePropsType } from "next";
+import { InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -73,7 +73,7 @@ function chipStatusColor(status: string) {
 
 export default function Profile({
   settings,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
 
   const [me, setMe] = useState<ProfileResponseDto | undefined>();
@@ -119,7 +119,7 @@ export default function Profile({
               name={me?.username[0].toUpperCase()}
               as="button"
               className="transition-transform w-32 h-32 text-6xl"
-              color="primary"
+              color={me?.role === 100 ? "primary" : "default"}
               disabled
             />
           </div>
@@ -246,7 +246,7 @@ export default function Profile({
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

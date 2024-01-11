@@ -15,6 +15,7 @@ import { calculatedChoicePrice, priceRange } from "..";
 import { useState } from "react";
 import LightBox from "@/components/LightBox";
 import { toast } from "react-toastify";
+import ShoppingCartIcon from "@/components/ShoppingCart";
 
 export default function Product({
   product,
@@ -108,7 +109,7 @@ export default function Product({
                 return (
                   <div
                     key={image}
-                    className={`${
+                    className={` ${
                       selectedImage === image ? "block" : "hidden"
                     }`}
                   >
@@ -117,7 +118,7 @@ export default function Product({
                       onClick={() => setOpenLightBox(!openLightBox)}
                     >
                       <Image
-                        className="object-cover h-25rem w-25rem"
+                        className="object-cover my-auto h-full aspect-square"
                         as={NextImage}
                         src={image}
                         alt={"just a image"}
@@ -155,9 +156,7 @@ export default function Product({
             </div>
           </div>
           <div className="px-3 py-4">
-            <h1 className="font-bold text-left text-xl">
-              ชื่อสินค้า : <span className="font-medium">{product.name}</span>
-            </h1>
+            <h1 className="font-medium text-left text-2xl">{product.name}</h1>
             <Divider />
             <div className="py-6">
               {price !== -1 ? (
@@ -261,21 +260,19 @@ export default function Product({
               <Button
                 size="lg"
                 onClick={() => addToCart()}
-                disabled={product.isAvailable === false}
-                color={product.isAvailable === false ? `danger` : `primary`}
+                isDisabled={product.isAvailable === false}
+                color={product.isAvailable === false ? `default` : `primary`}
+                variant={product.isAvailable === false ? `faded` : `solid`}
               >
-                <Image
-                  radius="none"
-                  src={`/shopping-cart.svg`}
-                  width={18}
-                  height={18}
-                  alt="cart"
-                />
+                {product.isAvailable ? (
+                  <ShoppingCartIcon width={20} height={20} fill="#FFFFFF" />
+                ) : null}
                 {product.isAvailable ? `เพิ่มไปยังรถเข็น` : `สินค้าหมด`}
               </Button>
             </div>
           </div>
         </div>
+        <Divider />
         <div className="grid grid-cols-1 py-8 px-2">
           <div>
             <h2 className="text-xl font-bold">รายละเอียด</h2>
