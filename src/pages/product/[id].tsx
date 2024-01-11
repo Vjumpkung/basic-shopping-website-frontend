@@ -117,7 +117,7 @@ export default function Product({
                       onClick={() => setOpenLightBox(!openLightBox)}
                     >
                       <Image
-                        className="object-cover h-auto"
+                        className="object-cover h-25rem w-25rem"
                         as={NextImage}
                         src={image}
                         alt={"just a image"}
@@ -258,7 +258,12 @@ export default function Product({
               </div>
             </div>
             <div className="py-4">
-              <Button size="lg" onClick={() => addToCart()}>
+              <Button
+                size="lg"
+                onClick={() => addToCart()}
+                disabled={product.isAvailable === false}
+                color={product.isAvailable === false ? `danger` : `primary`}
+              >
                 <Image
                   radius="none"
                   src={`/shopping-cart.svg`}
@@ -266,7 +271,7 @@ export default function Product({
                   height={18}
                   alt="cart"
                 />
-                เพิ่มไปยังรถเข็น
+                {product.isAvailable ? `เพิ่มไปยังรถเข็น` : `สินค้าหมด`}
               </Button>
             </div>
           </div>

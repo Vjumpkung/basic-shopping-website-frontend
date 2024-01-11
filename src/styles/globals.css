@@ -31,3 +31,11 @@
   align-items: center;
   justify-content: space-between;
 }
+
+.h-25rem {
+  height: 25rem;
+}
+
+.w-25rem {
+  width: 25rem;
+}

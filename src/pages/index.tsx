@@ -74,6 +74,7 @@ export default function Home({
                         {product.image.length > 0 ? (
                           <div className="mx-auto">
                             <Image
+                              className="object-cover h-52"
                               as={NextImage}
                               radius="none"
                               src={product.image[0]}

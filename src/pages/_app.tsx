@@ -19,8 +19,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   return (
     <NextUIProvider navigate={router.push}>
-      <ToastContainer />
       <main className={kanit.className}>
+        <ToastContainer />
         <Header settings={settings} />
         <Component {...pageProps} />
         <Footer />
