@@ -128,7 +128,13 @@ export default function Cart({
                       </div>
                     </div>
                     <div className="flex-none">
-                      <button onClick={() => removeItemFromCart(item._id)}>
+                      <button
+                        onClick={() => {
+                          willOrder.splice(willOrder.indexOf(item._id), 1);
+                          setWillOrder([...willOrder]);
+                          removeItemFromCart(item._id);
+                        }}
+                      >
                         <Image
                           src={`/trash.svg`}
                           width={40}
