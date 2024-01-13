@@ -58,7 +58,7 @@ export default function ManageAddress({
       .then((res) => {
         setAddresses(res.data);
       });
-  }, []);
+  }, [router]);
 
   return (
     <main>
