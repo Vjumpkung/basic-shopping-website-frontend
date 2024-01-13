@@ -6,6 +6,7 @@ import {
 } from "@/types/swagger.types";
 import {
   Avatar,
+  Button,
   Card,
   CardBody,
   CardFooter,
@@ -13,6 +14,11 @@ import {
   Chip,
   Divider,
   Image,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
 } from "@nextui-org/react";
 import NextImage from "next/image";
 import { InferGetStaticPropsType } from "next";
@@ -75,11 +81,12 @@ export default function Profile({
   settings,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
-
   const [me, setMe] = useState<ProfileResponseDto | undefined>();
+  const [selectedAddress, setSelectedAddress] = useState<string | undefined>();
   const [recentOrders, setRecentOrders] = useState<
     OrdersByUserIdResponseDto[] | undefined
   >([]);
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   useEffect(() => {
     const token = localStorage.getItem("shopping-jwt");
@@ -205,6 +212,11 @@ export default function Profile({
                               บาท
                             </p>
                             <p>x{item.amount}</p>
+                            {item.additional_info ? (
+                              <p>
+                                ข้อมูลเพิ่มเติม : {" " + item.additional_info}
+                              </p>
+                            ) : null}
                             <p className="text-right text-lg">
                               {item.total_price.toLocaleString()} บาท
                             </p>
@@ -228,9 +240,45 @@ export default function Profile({
                         </a>
                       </div>
                     ) : null}
+                    <div className="flex-grow self-end">
+                      <Button
+                        key={order._id}
+                        onPress={() => {
+                          setSelectedAddress(order._id);
+                          onOpen();
+                        }}
+                      >
+                        ดูที่อยู่จัดส่ง
+                      </Button>
+                      <Modal
+                        key={order._id}
+                        isOpen={selectedAddress === order._id && isOpen}
+                        onOpenChange={onOpenChange}
+                        onClose={onClose}
+                      >
+                        <ModalContent>
+                          {() => (
+                            <>
+                              <ModalHeader className="flex flex-col gap-1">
+                                {order.address.title +
+                                  " | " +
+                                  order.address.telephone}
+                              </ModalHeader>
+                              <ModalBody>
+                                <p>{order.address.address}</p>
+                              </ModalBody>
+                            </>
+                          )}
+                        </ModalContent>
+                      </Modal>
+                    </div>
                   </CardBody>
-                  <CardFooter className="flex justify-end">
-                    <div>
+                  <CardFooter className="flex flex-col">
+                    <div className="self-start flex-grow">
+                      <p className="text-lg">รายละเอียดเพิ่มเติม</p>
+                      <p>{order.additional_info}</p>
+                    </div>
+                    <div className="self-end flex-grow">
                       <p className="text-right text-2xl">
                         รวมการสั่งซื้อ: {order.total_price.toLocaleString()} บาท
                       </p>

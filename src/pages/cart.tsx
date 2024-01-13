@@ -54,24 +54,24 @@ export default function Cart({
     setTrigger(!trigger);
   }
 
-  async function order() {
-    const token = localStorage.getItem("shopping-jwt");
-    await client.POST("/api/v1/orders", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: {
-        shopping_cart: willOrder,
-      },
-    });
-    toast.success("สั่งซื้อสินค้าสำเร็จแล้ว", { position: "bottom-right" });
-    setTrigger(!trigger);
-    setWillOrder([]);
-  }
+  // async function order() {
+  //   const token = localStorage.getItem("shopping-jwt");
+  //   await client.POST("/api/v1/orders", {
+  //     headers: {
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //     body: {
+  //       shopping_cart: willOrder,
+  //     },
+  //   });
+  //   toast.success("สั่งซื้อสินค้าสำเร็จแล้ว", { position: "bottom-right" });
+  //   setTrigger(!trigger);
+  //   setWillOrder([]);
+  // }
 
   return (
     <main>
-      <title>{settings?.name + " - บัญชีของฉัน"}</title>
+      <title>{settings?.name + " - ตะกร้าของฉัน"}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">รถเข็น</h2>
         <div className="grid grid-cols-1">
@@ -122,6 +122,9 @@ export default function Cart({
                           บาท{" "}
                         </p>
                         <p>x{item.amount}</p>
+                        {item.additional_info ? (
+                          <p>ข้อมูลเพิ่มเติม : {item.additional_info}</p>
+                        ) : null}
                         <p className="text-2xl">
                           {item.total_price.toLocaleString()} บาท
                         </p>
@@ -148,13 +151,28 @@ export default function Cart({
               </div>
             );
           })}
-          <div
+          {/* <div
             className={`mx-auto ${
               willOrder.length > 0 ? "block" : "hidden"
             } py-3`}
           >
             <Button size="lg" color="primary" onClick={() => order()}>
               สั่งซื้อสินค้า
+            </Button>
+          </div> */}
+          <div
+            className={`mx-auto ${
+              willOrder.length > 0 ? "block" : "hidden"
+            } py-3`}
+          >
+            <Button
+              size="lg"
+              color="primary"
+              onClick={() =>
+                router.push(`/checkout?cart=${willOrder.join(",")}`)
+              }
+            >
+              ชำระเงิน
             </Button>
           </div>
         </div>

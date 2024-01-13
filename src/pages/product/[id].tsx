@@ -5,6 +5,7 @@ import {
   Breadcrumbs,
   Button,
   Divider,
+  Textarea,
 } from "@nextui-org/react";
 import { InferGetServerSidePropsType } from "next";
 import { Image } from "@nextui-org/react";
@@ -21,10 +22,12 @@ export default function Product({
   product,
   settings,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const token = localStorage.getItem("shopping-jwt");
   const [price, SetPrice] = useState<number>(-1);
   const [quantity, SetQuantity] = useState<number>(0);
   const [selectedChoice, SetSelectedChoice] = useState<string>("");
   const [selectedImage, SetSelectedImage] = useState<string>(product.image[0]);
+  const [addinfo, SetAddinfo] = useState<string>("");
 
   const [openLightBox, setOpenLightBox] = useState<boolean>(false);
 
@@ -48,9 +51,10 @@ export default function Product({
           product: product._id,
           choice: selectedChoice !== "" ? selectedChoice : undefined,
           amount: quantity,
+          additional_info: addinfo,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("shopping-jwt")}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -255,6 +259,15 @@ export default function Product({
                   </svg>
                 </button>
               </div>
+            </div>
+            <div className="py-4">
+              <h2 className="text-xl">ข้อมูลเพิ่มเติม</h2>
+              <Textarea
+                className="pt-2"
+                onChange={(e) => {
+                  SetAddinfo(e.target.value);
+                }}
+              />
             </div>
             <div className="py-4">
               <Button

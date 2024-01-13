@@ -115,6 +115,12 @@ export default function Header({
                     บัญชีของฉัน
                   </DropdownItem>
                   <DropdownItem
+                    key="address"
+                    onClick={() => router.push("/address")}
+                  >
+                    จัดการที่อยู่
+                  </DropdownItem>
+                  <DropdownItem
                     key="logout-button"
                     color="danger"
                     onClick={() => {

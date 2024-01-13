@@ -142,6 +142,24 @@ export interface paths {
     /** Require USER */
     get: operations["SlipsController_getSlipById"];
   };
+  "/api/v1/addresses": {
+    /** Requier USER */
+    get: operations["AddressesController_getAddresses"];
+    /** Requier USER */
+    post: operations["AddressesController_createAddress"];
+  };
+  "/api/v1/addresses/default": {
+    /** Requier USER */
+    get: operations["AddressesController_getDefaultAddress"];
+  };
+  "/api/v1/addresses/{id}": {
+    /** Requier USER */
+    get: operations["AddressesController_getAddressById"];
+    /** Requier USER */
+    delete: operations["AddressesController_deleteAddress"];
+    /** Requier USER */
+    patch: operations["AddressesController_updateAddress"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -249,11 +267,37 @@ export interface components {
       /** @description Product price */
       price?: number;
     };
+    addressSchema: {
+      /** @description address id */
+      _id: string;
+      /** @description user id */
+      user: string;
+      /** @description title */
+      title: string;
+      /** @description address */
+      address: string;
+      /** @description telephone number */
+      telephone: string;
+      /** @description set as default address */
+      default: boolean;
+      /**
+       * Format: date-time
+       * @description address created date
+       */
+      created_at: string;
+      /**
+       * Format: date-time
+       * @description address deleted date
+       */
+      deleted_at: string;
+    };
     CartResponseDto: {
       /** @description shopping cart id */
       _id: string;
       /** @description user id */
       user: string;
+      /** @description additional info */
+      additional_info: string;
       /** @description Product id */
       product: components["schemas"]["productSchema"];
       /** @description choice id */
@@ -285,6 +329,8 @@ export interface components {
       _id: string;
       /** @description user id */
       user: string;
+      /** @description address id */
+      address: components["schemas"]["addressSchema"];
       /** @description array of shopping cart id */
       shopping_cart: components["schemas"]["CartResponseDto"][];
       /** @description total price */
@@ -294,6 +340,8 @@ export interface components {
        * @enum {string}
        */
       status: "MUST_BE_PAID" | "MUST_BE_SHIPPED" | "MUST_BE_RECEIVED" | "COMPLETED" | "CANCELLED" | "REFUNDED";
+      /** @description additional info */
+      additional_info: string;
       /** @description shipping id */
       shipping: components["schemas"]["shippingSchema"] | null;
       /**
@@ -319,6 +367,10 @@ export interface components {
       _id: string;
       /** @description user id */
       user: string;
+      /** @description address */
+      address: components["schemas"]["addressSchema"];
+      /** @description additional info */
+      additional_info: string;
       /** @description array of shopping cart id */
       shopping_cart: components["schemas"]["CartResponseDto"][];
       /** @description total price */
@@ -351,6 +403,10 @@ export interface components {
     CreateOrderDto: {
       /** @description shopping cart id */
       shopping_cart: string[];
+      /** @description additional info */
+      additional_info?: string;
+      /** @description address id */
+      address: string;
     };
     ShippingCreateDto: {
       /** @description shipping provider */
@@ -371,6 +427,8 @@ export interface components {
       choice?: string;
       /** @description Amount of product */
       amount: number;
+      /** @description additional info */
+      additional_info?: string;
     };
     UpdateToCartDto: {
       /** @description Product choice ID */
@@ -490,6 +548,26 @@ export interface components {
       additional_info?: string;
       /** Format: date-time */
       transfer_date: string;
+    };
+    AddressCreateDto: {
+      /** @description title */
+      title: string;
+      /** @description address */
+      address: string;
+      /** @description telephone number */
+      telephone: string;
+      /** @description set as default address */
+      default?: boolean;
+    };
+    AddressUpdateDto: {
+      /** @description title */
+      title?: string;
+      /** @description address */
+      address?: string;
+      /** @description telephone number */
+      telephone?: string;
+      /** @description set as default address */
+      default?: boolean;
     };
   };
   responses: never;
@@ -1059,6 +1137,96 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["slipSchema"][];
         };
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_getAddresses: {
+    responses: {
+      /** @description Get addresses */
+      200: {
+        content: {
+          "application/json": components["schemas"]["addressSchema"][];
+        };
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_createAddress: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddressCreateDto"];
+      };
+    };
+    responses: {
+      /** @description address created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["addressSchema"];
+        };
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_getDefaultAddress: {
+    responses: {
+      /** @description Get addresses */
+      200: {
+        content: {
+          "application/json": components["schemas"]["addressSchema"];
+        };
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_getAddressById: {
+    parameters: {
+      path: {
+        /** @description address id */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Get address by id */
+      200: {
+        content: {
+          "application/json": components["schemas"]["addressSchema"];
+        };
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_deleteAddress: {
+    parameters: {
+      path: {
+        /** @description address id */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description address deleted */
+      204: {
+        content: never;
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_updateAddress: {
+    parameters: {
+      path: {
+        /** @description address id */
+        id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddressUpdateDto"];
+      };
+    };
+    responses: {
+      /** @description address updated */
+      204: {
+        content: never;
       };
     };
   };
