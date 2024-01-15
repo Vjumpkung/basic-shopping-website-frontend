@@ -78,7 +78,9 @@ export default function EditAddress({
       },
     });
     toast.success("บันทึกที่อยู่เรียบร้อยแล้ว", { position: "bottom-right" });
-    router.push("/address");
+    setTimeout(() => {
+      router.push("/address");
+    }, 500);
   }
 
   async function deleteAddress() {
@@ -194,7 +196,6 @@ export default function EditAddress({
               color="primary"
               onClick={() => {
                 saveAddress();
-                router.push("/address");
               }}
             >
               <p className="font-semibold">บันทึกการเปลี่ยนแปลง</p>

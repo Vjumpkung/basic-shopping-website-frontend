@@ -24,10 +24,8 @@ export class priceRange {
 }
 
 export function calculatedChoicePrice(choices: choiceSchema[]): rangePrice {
-  let min_price = 0;
-  let max_price = 0;
-  max_price = Math.max(...choices.map((choice) => choice.price));
-  min_price = Math.min(...choices.map((choice) => choice.price));
+  const min_price = Math.max(...choices.map((choice) => choice.price));
+  const max_price = Math.min(...choices.map((choice) => choice.price));
   return new priceRange(min_price, max_price);
 }
 

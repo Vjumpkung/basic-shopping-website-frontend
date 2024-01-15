@@ -50,30 +50,15 @@ export default function Cart({
         Authorization: `Bearer ${token}`,
       },
     });
-    toast.warning("ลบสินค้าออกจากรถเข็นแล้ว", { position: "bottom-right" });
+    toast.warning("ลบสินค้าออกจากตะกร้าแล้ว", { position: "bottom-right" });
     setTrigger(!trigger);
   }
-
-  // async function order() {
-  //   const token = localStorage.getItem("shopping-jwt");
-  //   await client.POST("/api/v1/orders", {
-  //     headers: {
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //     body: {
-  //       shopping_cart: willOrder,
-  //     },
-  //   });
-  //   toast.success("สั่งซื้อสินค้าสำเร็จแล้ว", { position: "bottom-right" });
-  //   setTrigger(!trigger);
-  //   setWillOrder([]);
-  // }
 
   return (
     <main>
       <title>{settings?.name + " - ตะกร้าของฉัน"}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
-        <h2 className="text-3xl">รถเข็น</h2>
+        <h2 className="text-3xl">ตะกร้าของฉัน</h2>
         <div className="grid grid-cols-1">
           {cart?.map((item) => {
             return (

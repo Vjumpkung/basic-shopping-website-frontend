@@ -51,7 +51,11 @@ export default function Checkout({
           },
         })
         .then((res) => {
-          setCart(res.data);
+          setCart(
+            res.data?.filter((item) => {
+              return willOrder?.includes(item._id);
+            })
+          );
         });
       client
         .GET("/api/v1/addresses/default", {
@@ -138,63 +142,56 @@ export default function Checkout({
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">ชำระเงิน</h2>
         <div className="grid grid-cols-1">
-          {cart
-            ?.filter((item) => {
-              return willOrder?.includes(item._id);
-            })
-            .map((item) => {
-              return (
-                <div key={item._id} className="py-2">
-                  <Card className="w-full mx-auto px-1">
-                    <CardHeader className="flex flex-row">
-                      <div className="flex-grow">
-                        <div>
-                          <Image
-                            src={item.product.image[0]}
-                            width={80}
-                            height={80}
-                            alt={"just a image"}
-                            className="object-cover h-auto"
-                          />
-                        </div>
-                        <div className="pt-2">
-                          <p className="text-xl">{item.product.name}</p>
-                          {item.choice ? (
-                            <p className="text-gray-500">
-                              <span className="font-medium">ตัวเลือก</span> :{" "}
-                              {item.choice.name}
-                            </p>
-                          ) : null}
-                          <p className="text-gray-500">
-                            <span className="font-medium">ราคา</span> :{" "}
-                            {item.choice
-                              ? item.choice.price.toLocaleString()
-                              : item.product.price.toLocaleString()}{" "}
-                            บาท{" "}
-                          </p>
-                          <p>x{item.amount}</p>
-                          {item.additional_info ? (
-                            <p>ข้อมูลเพิ่มเติม : {item.additional_info}</p>
-                          ) : null}
-                          <p className="text-2xl">
-                            {item.total_price.toLocaleString()} บาท
-                          </p>
-                        </div>
+          {cart?.map((item) => {
+            return (
+              <div key={item._id} className="py-2">
+                <Card className="w-full mx-auto px-1">
+                  <CardHeader className="flex flex-row">
+                    <div className="flex-grow">
+                      <div>
+                        <Image
+                          src={item.product.image[0]}
+                          width={80}
+                          height={80}
+                          alt={"just a image"}
+                          className="object-cover h-auto"
+                        />
                       </div>
-                    </CardHeader>
-                  </Card>
-                </div>
-              );
-            })}
+                      <div className="pt-2">
+                        <p className="text-xl">{item.product.name}</p>
+                        {item.choice ? (
+                          <p className="text-gray-500">
+                            <span className="font-medium">ตัวเลือก</span> :{" "}
+                            {item.choice.name}
+                          </p>
+                        ) : null}
+                        <p className="text-gray-500">
+                          <span className="font-medium">ราคา</span> :{" "}
+                          {item.choice
+                            ? item.choice.price.toLocaleString()
+                            : item.product.price.toLocaleString()}{" "}
+                          บาท{" "}
+                        </p>
+                        <p>x{item.amount}</p>
+                        {item.additional_info ? (
+                          <p>ข้อมูลเพิ่มเติม : {item.additional_info}</p>
+                        ) : null}
+                        <p className="text-2xl">
+                          {item.total_price.toLocaleString()} บาท
+                        </p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </div>
+            );
+          })}
           <div className="">
-            <p className="text-2xl text-right">
+            <p className="text-lg sm:text-xl md:text-2xl text-right">
               ยอดชำระเงินทั้งหมด :{" "}
               <span>
                 {cart
-                  ?.filter((item) => {
-                    return willOrder?.includes(item._id);
-                  })
-                  .reduce((prev, current) => prev + current.total_price, 0)
+                  ?.reduce((prev, current) => prev + current.total_price, 0)
                   .toLocaleString() + " "}
               </span>
               บาท

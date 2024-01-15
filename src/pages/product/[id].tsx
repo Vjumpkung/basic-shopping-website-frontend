@@ -64,7 +64,7 @@ export default function Product({
       return;
     }
 
-    toast.success("เพิ่มสินค้าลงในรถเข็นแล้ว", { position: "bottom-right" });
+    toast.success("เพิ่มสินค้าลงในตะกร้าแล้ว", { position: "bottom-right" });
   };
 
   const price_range =
@@ -280,7 +280,7 @@ export default function Product({
                 {product.isAvailable ? (
                   <ShoppingCartIcon width={20} height={20} fill="#FFFFFF" />
                 ) : null}
-                {product.isAvailable ? `เพิ่มไปยังรถเข็น` : `สินค้าหมด`}
+                {product.isAvailable ? `เพิ่มไปยังตะกร้า` : `สินค้าหมด`}
               </Button>
             </div>
           </div>
