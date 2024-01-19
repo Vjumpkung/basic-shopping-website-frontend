@@ -25,6 +25,7 @@ import { InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import UserLayout from "@/components/UserLayout";
 
 enum OrderStatus {
   MUST_BE_PAID = "รอการชำระเงิน",
@@ -77,6 +78,26 @@ function chipStatusColor(status: string) {
   }
 }
 
+async function getProfile(token: string) {
+  const { data } = await client.GET("/api/v1/auth/profile", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return data;
+}
+
+async function getUserOrders(token: string) {
+  const { data } = await client.GET("/api/v1/orders/user", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return data;
+}
+
 export default function Profile({
   settings,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
@@ -91,31 +112,19 @@ export default function Profile({
   useEffect(() => {
     const token = localStorage.getItem("shopping-jwt");
     if (token !== null) {
-      client
-        .GET("/api/v1/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          setMe(res.data);
-        });
-      client
-        .GET("/api/v1/orders/user", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          setRecentOrders(res.data);
-        });
+      getProfile(token).then((res) => {
+        setMe(res);
+      });
+      getUserOrders(token).then((res) => {
+        setRecentOrders(res);
+      });
     } else {
       router.push("/signin");
     }
   }, [router]);
 
   return (
-    <main>
+    <UserLayout settings={settings}>
       <title>{settings?.name + " - บัญชีของฉัน"}</title>
       <div className="w-full lg:w-1/2 xl:w-1/3 mx-auto px-5">
         <h2 className="text-3xl">ข้อมูลของฉัน</h2>
@@ -240,9 +249,8 @@ export default function Profile({
                         </a>
                       </div>
                     ) : null}
-                    <div className="flex-grow self-end">
+                    <div key={order._id} className="flex-grow self-end">
                       <Button
-                        key={order._id}
                         onPress={() => {
                           setSelectedAddress(order._id);
                           onOpen();
@@ -251,7 +259,6 @@ export default function Profile({
                         ดูที่อยู่จัดส่ง
                       </Button>
                       <Modal
-                        key={order._id}
                         isOpen={selectedAddress === order._id && isOpen}
                         onOpenChange={onOpenChange}
                         onClose={onClose}
@@ -290,7 +297,7 @@ export default function Profile({
           })}
         </div>
       </div>
-    </main>
+    </UserLayout>
   );
 }
 

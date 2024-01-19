@@ -1,4 +1,5 @@
 import client from "@/api/client";
+import UserLayout from "@/components/UserLayout";
 import {
   ProductResponseDto,
   choiceSchema,
@@ -6,6 +7,7 @@ import {
 } from "@/types/swagger.types";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/react";
+import { QueryClient, useQuery } from "@tanstack/react-query";
 import { InferGetStaticPropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
@@ -44,72 +46,72 @@ async function fetchProduct() {
 export default function Home({
   settings,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const [products, setProducts] = useState<ProductResponseDto[] | undefined>(
-    []
-  );
-  useEffect(() => {
-    fetchProduct().then((res) => {
-      setProducts(res);
-    });
-  }, []);
+  const { isLoading, error, data } = useQuery({
+    queryFn: fetchProduct,
+    queryKey: ["products"],
+  });
+
+  const products = data as ProductResponseDto[] | undefined;
 
   return (
-    <main>
-      <title>{`${settings?.name} - หน้าแรก`}</title>
-      <div className="w-5/6 mx-auto">
-        <div className="flex flex-wrap justify-center">
-          {products?.map((product) => {
-            const price_range =
-              product.choices.length > 0
-                ? calculatedChoicePrice(product.choices)
-                : new priceRange(0, 0);
-            return (
-              <div key={product._id}>
-                <Link href={`/product/${product._id}`} key={product._id}>
-                  <div key={product._id} className="my-2 mx-2 w-72">
-                    <Card className="py-2">
-                      <CardHeader className="pb-0 pt-2 px-4">
-                        {product.image.length > 0 ? (
-                          <div className="mx-auto">
+    <UserLayout settings={settings}>
+      <main>
+        <title>{`${settings?.name} - หน้าแรก`}</title>
+        <div className="w-5/6 mx-auto">
+          <div className="flex flex-wrap justify-center">
+            {products?.map((product) => {
+              const price_range =
+                product.choices.length > 0
+                  ? calculatedChoicePrice(product.choices)
+                  : new priceRange(0, 0);
+              return (
+                <div key={product._id}>
+                  <Link href={`/product/${product._id}`} key={product._id}>
+                    <div key={product._id} className="my-2 mx-2 w-72">
+                      <Card className="py-2">
+                        <CardHeader className="pb-0 pt-2 px-4">
+                          {product.image.length > 0 ? (
+                            <div className="mx-auto">
+                              <Image
+                                className="object-cover h-52"
+                                as={NextImage}
+                                radius="none"
+                                src={product.image[0]}
+                                alt={"just a image"}
+                                width={200}
+                                height={200}
+                              />
+                            </div>
+                          ) : (
                             <Image
-                              className="object-cover h-52"
-                              as={NextImage}
-                              radius="none"
-                              src={product.image[0]}
-                              alt={"just a image"}
+                              src={`https://picsum.photos/seed/${Math.random()}/200/200`}
                               width={200}
                               height={200}
+                              alt={"just a image"}
                             />
-                          </div>
-                        ) : (
-                          <Image
-                            src={`https://picsum.photos/seed/${Math.random()}/200/200`}
-                            width={200}
-                            height={200}
-                            alt={"just a image"}
-                          />
-                        )}
-                      </CardHeader>
-                      <CardBody className="overflow-hidden py-2">
-                        <h4 className=" font-medium text-large truncate">
-                          {product.name}
-                        </h4>
-                        <p className="text-medium">
-                          {product.choices.length > 0
-                            ? `${price_range.min_price.toLocaleString()} - ${price_range.max_price.toLocaleString()}`
-                            : product.price.toLocaleString()}{" "}
-                          บาท
-                        </p>
-                      </CardBody>
-                    </Card>
-                  </div>
-                </Link>
-              </div>
-            );
-          })}
+                          )}
+                        </CardHeader>
+                        <CardBody className="overflow-hidden py-2">
+                          <h4 className=" font-medium text-large truncate">
+                            {product.name}
+                          </h4>
+                          <p className="text-medium">
+                            {product.choices.length > 0
+                              ? `${price_range.min_price.toLocaleString()} - ${price_range.max_price.toLocaleString()}`
+                              : product.price.toLocaleString()}{" "}
+                            บาท
+                          </p>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </UserLayout>
   );
 }
 

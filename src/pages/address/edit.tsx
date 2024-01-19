@@ -1,4 +1,5 @@
 import client from "@/api/client";
+import UserLayout from "@/components/UserLayout";
 import { addressSchema, settingsSchema } from "@/types/swagger.types";
 import {
   Button,
@@ -57,7 +58,14 @@ export default function EditAddress({
           setIsdefault(address?.default as boolean);
         });
     }
-  }, []);
+  }, [
+    address?.address,
+    address?.default,
+    address?.title,
+    address?.telephone,
+    id,
+    router,
+  ]);
 
   async function saveAddress() {
     const token = localStorage.getItem("shopping-jwt");
@@ -114,7 +122,7 @@ export default function EditAddress({
   }, [address]);
 
   return (
-    <main>
+    <UserLayout settings={settings}>
       <title>{`${settings?.name} - แก้ไขที่อยู่`}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">แก้ไขที่อยู่</h2>
@@ -203,7 +211,7 @@ export default function EditAddress({
           </div>
         </div>
       </div>
-    </main>
+    </UserLayout>
   );
 }
 

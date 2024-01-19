@@ -13,16 +13,17 @@ import NextImage from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { calculatedChoicePrice, priceRange } from "..";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LightBox from "@/components/LightBox";
 import { toast } from "react-toastify";
 import ShoppingCartIcon from "@/components/ShoppingCart";
+import UserLayout from "@/components/UserLayout";
 
 export default function Product({
   product,
   settings,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const token = localStorage.getItem("shopping-jwt");
+  const [token, setToken] = useState<string>("");
   const [price, SetPrice] = useState<number>(-1);
   const [quantity, SetQuantity] = useState<number>(0);
   const [selectedChoice, SetSelectedChoice] = useState<string>("");
@@ -32,6 +33,11 @@ export default function Product({
   const [openLightBox, setOpenLightBox] = useState<boolean>(false);
 
   const path = usePathname();
+
+  useEffect(() => {
+    const token = localStorage.getItem("shopping-jwt");
+    setToken(token !== null ? token : "");
+  }, [token]);
 
   const addToCart = async () => {
     if (quantity === 0) {
@@ -73,7 +79,7 @@ export default function Product({
       : new priceRange(0, 0);
 
   return (
-    <main>
+    <UserLayout settings={settings}>
       <title>{`${settings?.name} - ${product.name}`}</title>
       <div className="w-full sm:w-4/6 mx-auto">
         <Breadcrumbs className="sm:block hidden">
@@ -143,7 +149,7 @@ export default function Product({
                       <Image
                         className={`border border-gray-300 object-cover w-20 h-20 ${
                           selectedImage === image
-                            ? "border-black"
+                            ? "border-blac"
                             : "border-gray-300"
                         }`}
                         as={NextImage}
@@ -293,7 +299,7 @@ export default function Product({
           </div>
         </div>
       </div>
-    </main>
+    </UserLayout>
   );
 }
 
@@ -315,7 +321,7 @@ export const getServerSideProps = async (context: any) => {
   }
 
   const product: ProductResponseDto = data;
-  const settings: settingsSchema | undefined = get_settings.data;
+  const settings: settingsSchema = get_settings.data as settingsSchema;
 
   return {
     props: {

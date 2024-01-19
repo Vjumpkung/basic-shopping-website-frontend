@@ -1,4 +1,5 @@
 import client from "@/api/client";
+import UserLayout from "@/components/UserLayout";
 import {
   CartResponseDto,
   addressSchema,
@@ -30,20 +31,24 @@ export default function Checkout({
   settings,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
+  const [token, setToken] = useState<string>("");
   const [address, setAddress] = useState<addressSchema | undefined>(undefined);
   const willOrder = router.query.cart?.toString().split(",");
   const [cart, setCart] = useState<CartResponseDto[] | undefined>([]);
   const [addInfo, setAddInfo] = useState<string>("");
   const [selectedAddress, setSelectedAddress] = useState<string | undefined>(
-    ""
+    undefined
   ); // address id
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [addresses, setAddresses] = useState<addressSchema[] | undefined>([]);
 
   useEffect(() => {
     const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      loadAllAddress();
+    setToken(token as string);
+  }, []);
+
+  useEffect(() => {
+    if (token !== "") {
       client
         .GET("/api/v1/shopping-cart/user", {
           headers: {
@@ -67,14 +72,12 @@ export default function Checkout({
           setAddress(res.data);
           setSelectedAddress(res.data?._id);
         });
-    } else {
-      router.push("/signin");
+      loadAllAddress();
     }
-  }, []);
+  }, [token]);
 
   useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
+    if (token !== "" && selectedAddress !== undefined) {
       client
         .GET("/api/v1/addresses/{id}", {
           headers: {
@@ -89,16 +92,10 @@ export default function Checkout({
         .then((res) => {
           setAddress(res.data);
         });
-    } else {
-      router.push("/signin");
     }
   }, [selectedAddress]);
 
   function loadAllAddress() {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token === null) {
-      router.push("/signin");
-    }
     client
       .GET("/api/v1/addresses", {
         headers: {
@@ -111,10 +108,6 @@ export default function Checkout({
   }
 
   function order() {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token === null) {
-      router.push("/signin");
-    }
     if (selectedAddress === undefined) {
       toast.error("กรุณาเลือกที่อยู่จัดส่ง", { position: "bottom-right" });
       return;
@@ -137,7 +130,7 @@ export default function Checkout({
   }
 
   return (
-    <main>
+    <UserLayout settings={settings}>
       <title>{settings?.name + " - ชำระเงิน"}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">ชำระเงิน</h2>
@@ -278,7 +271,7 @@ export default function Checkout({
           </div>
         </div>
       </div>
-    </main>
+    </UserLayout>
   );
 }
 

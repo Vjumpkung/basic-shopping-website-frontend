@@ -1,4 +1,5 @@
 import client from "@/api/client";
+import UserLayout from "@/components/UserLayout";
 import { addressSchema, settingsSchema } from "@/types/swagger.types";
 import {
   Button,
@@ -18,10 +19,10 @@ export default function ManageAddress({
   settings,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [addresses, setAddresses] = useState<addressSchema[] | undefined>([]);
+  const [token, setToken] = useState<string>("");
   const router = useRouter();
 
   async function create_address() {
-    const token = localStorage.getItem("shopping-jwt");
     const { data, error, response } = await client.POST("/api/v1/addresses", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -46,6 +47,7 @@ export default function ManageAddress({
 
   useEffect(() => {
     const token = localStorage.getItem("shopping-jwt");
+    setToken(token as string);
     if (token === null) {
       router.push("/signin");
     }
@@ -58,10 +60,10 @@ export default function ManageAddress({
       .then((res) => {
         setAddresses(res.data);
       });
-  }, []);
+  }, [router]);
 
   return (
-    <main>
+    <UserLayout settings={settings}>
       <title>{`${settings?.name} - ที่อยู่ของฉัน`}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">ที่อยู่ของฉัน</h2>
@@ -115,7 +117,7 @@ export default function ManageAddress({
           </div>
         </div>
       </div>
-    </main>
+    </UserLayout>
   );
 }
 

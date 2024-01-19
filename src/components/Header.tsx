@@ -44,9 +44,6 @@ export default function Header({
     }
   }, [router]);
 
-  if (router.pathname === "/signin" || router.pathname === "/signup")
-    return null;
-
   const logout_notify = () =>
     toast.info("คุณได้ออกจากระบบแล้ว", { position: "bottom-right" });
 

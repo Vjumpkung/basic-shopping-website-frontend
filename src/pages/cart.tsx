@@ -1,4 +1,5 @@
 import client from "@/api/client";
+import UserLayout from "@/components/UserLayout";
 import {
   CartResponseDto,
   ProfileResponseDto,
@@ -36,7 +37,7 @@ export default function Cart({
     } else {
       router.push("/signin");
     }
-  }, [trigger]);
+  }, [trigger, router]);
 
   async function removeItemFromCart(id: string) {
     const token = localStorage.getItem("shopping-jwt");
@@ -55,7 +56,7 @@ export default function Cart({
   }
 
   return (
-    <main>
+    <UserLayout settings={settings}>
       <title>{settings?.name + " - ตะกร้าของฉัน"}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">ตะกร้าของฉัน</h2>
@@ -136,15 +137,6 @@ export default function Cart({
               </div>
             );
           })}
-          {/* <div
-            className={`mx-auto ${
-              willOrder.length > 0 ? "block" : "hidden"
-            } py-3`}
-          >
-            <Button size="lg" color="primary" onClick={() => order()}>
-              สั่งซื้อสินค้า
-            </Button>
-          </div> */}
           <div
             className={`mx-auto ${
               willOrder.length > 0 ? "block" : "hidden"
@@ -162,7 +154,7 @@ export default function Cart({
           </div>
         </div>
       </div>
-    </main>
+    </UserLayout>
   );
 }
 

@@ -2,7 +2,7 @@ import { EyeFilledIcon } from "@/components/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "@/components/EyeSlashFilledIcon";
 import { Button, Image, Input } from "@nextui-org/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NextImage from "next/image";
 import { useRegister } from "@/utils/register";
 import client from "@/api/client";
@@ -74,6 +74,13 @@ export default function SignUp({
 
     setIsExecute(false);
   }
+
+  useEffect(() => {
+    const token = localStorage.getItem("shopping-jwt");
+    if (token !== null) {
+      router.push("/");
+    }
+  });
 
   return (
     <main

@@ -16,7 +16,7 @@ export default function LightBox({
     if (display) {
       showImage(selectImage);
     }
-  }, [display]);
+  }, [display, selectImage]);
 
   const [lightboxDisplay, setLightBoxDisplay] = useState<boolean>(false);
   const [imageToShow, setImageToShow] = useState<string>("");
