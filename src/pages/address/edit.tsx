@@ -14,7 +14,6 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { InferGetStaticPropsType } from "next";
-import { Kanit } from "next/font/google";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";

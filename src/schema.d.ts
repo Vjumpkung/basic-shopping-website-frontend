@@ -132,6 +132,14 @@ export interface paths {
     /** Require ADMIN */
     post: operations["ChoicesController_createChoice"];
   };
+  "/api/v1/choices/{id}": {
+    /** Require ADMIN */
+    get: operations["ChoicesController_getChoiceById"];
+    /** Require ADMIN */
+    delete: operations["ChoicesController_deleteChoice"];
+    /** Require ADMIN */
+    patch: operations["ChoicesController_updateChoice"];
+  };
   "/api/v1/slips": {
     /** Require ADMIN */
     get: operations["SlipsController_getSlips"];
@@ -524,6 +532,12 @@ export interface components {
       name: string;
       /** @description choice price */
       price: number;
+    };
+    UpdateChoiceDto: {
+      /** @description choice name */
+      name?: string;
+      /** @description choice price */
+      price?: number;
     };
     slipSchema: {
       /** @description slip id */
@@ -1100,6 +1114,57 @@ export interface operations {
     };
     responses: {
       /** @description Create choices */
+      201: {
+        content: {
+          "application/json": components["schemas"]["choiceSchema"];
+        };
+      };
+    };
+  };
+  /** Require ADMIN */
+  ChoicesController_getChoiceById: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Get choice by id */
+      200: {
+        content: {
+          "application/json": components["schemas"]["choiceSchema"];
+        };
+      };
+    };
+  };
+  /** Require ADMIN */
+  ChoicesController_deleteChoice: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Update choice */
+      204: {
+        content: never;
+      };
+    };
+  };
+  /** Require ADMIN */
+  ChoicesController_updateChoice: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateChoiceDto"];
+      };
+    };
+    responses: {
+      /** @description Update choice */
       204: {
         content: never;
       };

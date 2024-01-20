@@ -117,6 +117,16 @@ export default function Header({
                   >
                     จัดการที่อยู่
                   </DropdownItem>
+                  {me?.role === 100 ? (
+                    <DropdownItem
+                      key="admin_page"
+                      onClick={() => router.push("/admin")}
+                    >
+                      จัดการหลังบ้าน
+                    </DropdownItem>
+                  ) : (
+                    <DropdownItem className="hidden"></DropdownItem>
+                  )}
                   <DropdownItem
                     key="logout-button"
                     color="danger"

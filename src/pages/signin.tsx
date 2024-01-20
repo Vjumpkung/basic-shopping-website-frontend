@@ -43,7 +43,20 @@ export default function SignIn({
     login(username, password)
       .then((res) => {
         localStorage.setItem("shopping-jwt", res.access_token);
-        router.push("/");
+
+        client
+          .GET("/api/v1/auth/profile", {
+            headers: {
+              Authorization: `Bearer ${res.access_token}`,
+            },
+          })
+          .then((res) => {
+            if (res.data?.role === 100) {
+              router.push("/admin");
+            } else {
+              router.push("/");
+            }
+          });
       })
       .catch((err) => {
         setIsUsernameEmpty(true);
