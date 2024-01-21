@@ -3,6 +3,7 @@ import AdminLayout from "@/components/AdminLayout";
 import { ProductResponseDto, settingsSchema } from "@/types/swagger.types";
 import {
   Button,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -21,6 +22,7 @@ export default function AllProducts({
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
+  const [showAll, setShowAll] = useState<boolean>(true);
   const [products, setProducts] = useState<ProductResponseDto[] | undefined>(
     undefined
   );
@@ -64,15 +66,41 @@ export default function AllProducts({
           <h1 className="text-2xl font-semibold">สินค้าทั้งหมด</h1>
         </div>
         <div className="ml-auto">
-          <Button onClick={() => router.push("/admin/products/create")}>
-            เพิ่มสินค้า
-          </Button>
+          <div className="flex flex-row gap-3">
+            <div className="flex flex-row">
+              <div className="self-center">
+                <span className={`${showAll ? "text-gray-400" : "text-black"}`}>
+                  แบบร่าง
+                </span>
+              </div>
+              <Switch
+                isSelected={showAll}
+                className="ml-2"
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setShowAll(true);
+                  } else {
+                    setShowAll(false);
+                  }
+                }}
+              />
+              <div className="self-center">
+                <span className={`${showAll ? "text-black" : "text-gray-400"}`}>
+                  ทั้งหมด
+                </span>
+              </div>
+            </div>
+            <div>
+              <Button onClick={() => router.push("/admin/products/create")}>
+                เพิ่มสินค้า
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
       <div className="mt-4">
         <Table aria-label="all products">
           <TableHeader>
-            <TableColumn>id</TableColumn>
             <TableColumn>ชื่อสินค้า</TableColumn>
             <TableColumn>รูปภาพ</TableColumn>
             <TableColumn>สถานะ</TableColumn>
@@ -80,42 +108,49 @@ export default function AllProducts({
             <TableColumn>แก้ไข</TableColumn>
           </TableHeader>
           <TableBody>
-            {products?.map((product) => {
-              return (
-                <TableRow key={product._id}>
-                  <TableCell>
-                    <code>{product._id}</code>
-                  </TableCell>
-                  <TableCell>
-                    <p className="truncate">{product.name}</p>
-                  </TableCell>
-                  <TableCell>
-                    <Image
-                      src={product.image[0]}
-                      alt={product.name}
-                      width={80}
-                      height={80}
-                      className="aspect-square w-full h-full object-cover"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {product.isAvailable ? "มีสินค้า" : "สินค้าหมด"}
-                  </TableCell>
-                  <TableCell>
-                    {product.published_at !== null ? "เผยแพร่" : "แบบร่าง"}
-                  </TableCell>
-                  <TableCell>
-                    <button
-                      onClick={() =>
-                        router.push(`/admin/products/edit?id=${product._id}`)
-                      }
-                    >
-                      <PencilSquare className="mt-1" />
-                    </button>
-                  </TableCell>
-                </TableRow>
-              );
-            }) || []}
+            {products
+              ?.filter((product) => {
+                if (showAll) {
+                  return product;
+                } else {
+                  return product.published_at === null;
+                }
+              })
+              ?.map((product) => {
+                return (
+                  <TableRow key={product._id}>
+                    <TableCell>
+                      <div className="max-w-md">
+                        <p className="truncate">{product.name}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell width={80}>
+                      <Image
+                        src={product.image[0]}
+                        alt={product.name}
+                        width={80}
+                        height={80}
+                        className="aspect-square object-cover"
+                      />
+                    </TableCell>
+                    <TableCell width={70}>
+                      {product.isAvailable ? "มีสินค้า" : "สินค้าหมด"}
+                    </TableCell>
+                    <TableCell width={70}>
+                      {product.published_at !== null ? "เผยแพร่" : "แบบร่าง"}
+                    </TableCell>
+                    <TableCell width={20}>
+                      <button
+                        onClick={() =>
+                          router.push(`/admin/products/edit?id=${product._id}`)
+                        }
+                      >
+                        <PencilSquare className="mt-1" />
+                      </button>
+                    </TableCell>
+                  </TableRow>
+                );
+              }) || []}
           </TableBody>
         </Table>
       </div>

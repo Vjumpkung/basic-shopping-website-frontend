@@ -1,28 +1,30 @@
 import client from "@/api/client";
+import LightBox from "@/components/LightBox";
+import ShoppingCartIcon from "@/components/ShoppingCart";
+import UserLayout from "@/components/UserLayout";
 import { ProductResponseDto, settingsSchema } from "@/types/swagger.types";
 import {
   BreadcrumbItem,
   Breadcrumbs,
   Button,
   Divider,
+  Image,
   Textarea,
 } from "@nextui-org/react";
 import { InferGetServerSidePropsType } from "next";
-import { Image } from "@nextui-org/react";
 import NextImage from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { calculatedChoicePrice, priceRange } from "..";
-import { useEffect, useState } from "react";
-import LightBox from "@/components/LightBox";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import ShoppingCartIcon from "@/components/ShoppingCart";
-import UserLayout from "@/components/UserLayout";
+import { calculatedChoicePrice, priceRange } from "..";
+import { CaretLeftFill, CaretRightFill } from "react-bootstrap-icons";
 
 export default function Product({
   product,
   settings,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const elementRef = useRef(null);
   const [token, setToken] = useState<string>("");
   const [price, SetPrice] = useState<number>(-1);
   const [quantity, SetQuantity] = useState<number>(0);
@@ -78,6 +80,22 @@ export default function Product({
       ? calculatedChoicePrice(product.choices)
       : new priceRange(0, 0);
 
+  const handleHorizontalScroll = (
+    element: any,
+    speed: number,
+    distance: number,
+    step: number
+  ) => {
+    let scrollAmount = 0;
+    const slideTimer = setInterval(() => {
+      element.scrollLeft += step;
+      scrollAmount += Math.abs(step);
+      if (scrollAmount >= distance) {
+        clearInterval(slideTimer);
+      }
+    }, speed);
+  };
+
   return (
     <UserLayout settings={settings}>
       <title>{`${settings?.name} - ${product.name}`}</title>
@@ -116,6 +134,10 @@ export default function Product({
                 stateChanger={setOpenLightBox}
               />
               {product.image.map((image) => {
+                if (image === "") {
+                  return null;
+                }
+
                 return (
                   <div
                     key={image}
@@ -135,34 +157,65 @@ export default function Product({
                         radius="none"
                         width={480}
                         height={480}
+                        quality={100}
                       />
                     </button>
                   </div>
                 );
               })}
             </div>
-            <div className="flex flex-wrap py-5 justify-center">
-              {product.image.map((image) => {
-                return (
-                  <div className="flex pr-2 pb-2" key={image}>
-                    <button onMouseOver={() => SetSelectedImage(image)}>
-                      <Image
-                        className={`border border-gray-300 object-cover w-20 h-20 ${
-                          selectedImage === image
-                            ? "border-blac"
-                            : "border-gray-300"
-                        }`}
-                        as={NextImage}
-                        src={image}
-                        alt={"just a image"}
-                        radius="none"
-                        width={80}
-                        height={80}
-                      />
-                    </button>
-                  </div>
-                );
-              })}
+            <div className="flex flex-row justify-center">
+              <div className="self-center">
+                <button
+                  onClick={() => {
+                    handleHorizontalScroll(elementRef.current, 1, 100, -5);
+                  }}
+                >
+                  <CaretLeftFill />
+                </button>
+              </div>
+              <div
+                className="flex flex-row my-5 overflow-x-auto gap-2 no-scrollbar"
+                ref={elementRef}
+              >
+                {product.image.map((image) => {
+                  if (image === "") {
+                    return null;
+                  }
+
+                  return (
+                    <div className="flex-none aspect-square" key={image}>
+                      <button
+                        onMouseOver={() => SetSelectedImage(image)}
+                        onClick={() => setOpenLightBox(!openLightBox)}
+                      >
+                        <Image
+                          className={`border border-gray-300 object-cover w-20 h-20 ${
+                            selectedImage === image
+                              ? "border-blac"
+                              : "border-gray-300"
+                          }`}
+                          as={NextImage}
+                          src={image}
+                          alt={"just a image"}
+                          radius="none"
+                          width={80}
+                          height={80}
+                        />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="self-center">
+                <button
+                  onClick={() => {
+                    handleHorizontalScroll(elementRef.current, 1, 100, +5);
+                  }}
+                >
+                  <CaretRightFill />
+                </button>
+              </div>
             </div>
           </div>
           <div className="px-3 py-4">
@@ -185,7 +238,7 @@ export default function Product({
             {product.choices.length > 0 ? (
               <h2 className="text-xl">ตัวเลือก</h2>
             ) : null}
-            <div className="flex flex-wrap  ">
+            <div className="flex flex-wrap">
               {product.choices.length > 0
                 ? product.choices.map((choice) => {
                     return (
@@ -198,8 +251,8 @@ export default function Product({
                           }}
                           className={
                             selectedChoice === choice._id
-                              ? `border border-black`
-                              : `border border-gray-300`
+                              ? `bg-gray-600 text-white`
+                              : ``
                           }
                         >
                           <p>{choice.name}</p>

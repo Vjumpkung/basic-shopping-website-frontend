@@ -72,7 +72,6 @@ export default function ManageChoices({
         <div className="mt-4">
           <Table aria-label="all choices">
             <TableHeader>
-              <TableColumn>id</TableColumn>
               <TableColumn>ชื่อ</TableColumn>
               <TableColumn>ราคา</TableColumn>
               <TableColumn>แก้ไข</TableColumn>
@@ -81,9 +80,6 @@ export default function ManageChoices({
             <TableBody>
               {choices?.map((choice) => (
                 <TableRow key={choice._id}>
-                  <TableCell width={100} className="text-gray-400">
-                    <code>{choice._id}</code>
-                  </TableCell>
                   <TableCell>{choice.name}</TableCell>
                   <TableCell>{choice.price}</TableCell>
                   <TableCell width={20}>

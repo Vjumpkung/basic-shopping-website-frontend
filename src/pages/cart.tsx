@@ -1,16 +1,12 @@
 import client from "@/api/client";
 import UserLayout from "@/components/UserLayout";
-import {
-  CartResponseDto,
-  ProfileResponseDto,
-  settingsSchema,
-} from "@/types/swagger.types";
-import { Button, Card, CardHeader, Checkbox, Chip } from "@nextui-org/react";
+import { CartResponseDto, settingsSchema } from "@/types/swagger.types";
+import { Button, Card, CardHeader, Checkbox } from "@nextui-org/react";
 import { InferGetStaticPropsType } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export default function Cart({

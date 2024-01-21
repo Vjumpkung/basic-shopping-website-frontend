@@ -14,7 +14,6 @@ import {
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -33,7 +32,7 @@ import { CldUploadButton, CldUploadWidgetInfo } from "next-cloudinary";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Trash, TrashFill } from "react-bootstrap-icons";
+import { TrashFill } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 
 export default function EditProduct({

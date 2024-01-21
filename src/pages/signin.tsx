@@ -1,13 +1,13 @@
+import client from "@/api/client";
 import { EyeFilledIcon } from "@/components/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "@/components/EyeSlashFilledIcon";
+import { settingsSchema } from "@/types/swagger.types";
+import { useLogin } from "@/utils/login";
 import { Button, Image, Input } from "@nextui-org/react";
+import { InferGetStaticPropsType } from "next";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useLogin } from "@/utils/login";
-import { InferGetStaticPropsType } from "next";
-import client from "@/api/client";
-import { settingsSchema } from "@/types/swagger.types";
-import Link from "next/link";
 
 export default function SignIn({
   settings,

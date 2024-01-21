@@ -1,4 +1,5 @@
 import client from "@/api/client";
+import UserLayout from "@/components/UserLayout";
 import {
   OrdersByUserIdResponseDto,
   ProfileResponseDto,
@@ -20,12 +21,11 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
-import NextImage from "next/image";
 import { InferGetStaticPropsType } from "next";
+import NextImage from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import UserLayout from "@/components/UserLayout";
 
 enum OrderStatus {
   MUST_BE_PAID = "รอการชำระเงิน",

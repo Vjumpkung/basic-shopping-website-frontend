@@ -7,11 +7,10 @@ import {
 } from "@/types/swagger.types";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/react";
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { InferGetStaticPropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 export type rangePrice = {
   min_price: number;
@@ -65,7 +64,7 @@ export default function Home({
                   ? calculatedChoicePrice(product.choices)
                   : new priceRange(0, 0);
               return (
-                <div key={product._id}>
+                <div key={product._id} className="">
                   <Link href={`/product/${product._id}`} key={product._id}>
                     <div key={product._id} className="my-2 mx-2 w-72">
                       <Card className="py-2">

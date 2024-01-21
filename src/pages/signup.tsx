@@ -1,13 +1,13 @@
+import client from "@/api/client";
 import { EyeFilledIcon } from "@/components/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "@/components/EyeSlashFilledIcon";
+import { settingsSchema } from "@/types/swagger.types";
+import { useRegister } from "@/utils/register";
 import { Button, Image, Input } from "@nextui-org/react";
+import { InferGetStaticPropsType } from "next";
+import NextImage from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import NextImage from "next/image";
-import { useRegister } from "@/utils/register";
-import client from "@/api/client";
-import { settingsSchema } from "@/types/swagger.types";
-import { InferGetServerSidePropsType, InferGetStaticPropsType } from "next";
 import { toast } from "react-toastify";
 
 export default function SignUp({

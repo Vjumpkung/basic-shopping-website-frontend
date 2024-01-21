@@ -1,6 +1,7 @@
 import { settingsSchema } from "@/types/swagger.types";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import {
   Bag,
@@ -8,6 +9,7 @@ import {
   DoorClosed,
   FileEarmarkPerson,
   Gear,
+  House,
   Person,
   Shop,
 } from "react-bootstrap-icons";
@@ -20,15 +22,17 @@ export default function AdminHeader({
   const router = useRouter();
 
   return (
-    <div className="border border-black rounded-md max-w-xs flex-grow mx-5 my-5 px-2 py-2 bg-white">
-      <div className="flex flex-row flex-wrap">
-        <div className="mx-2 mt-2">
-          <Image src={settings.logo} width={32} height={32} alt="logo" />
+    <div className="rounded-md max-w-xs flex-none mx-5 my-5 px-2 py-2 bg-white">
+      <Link href="/" prefetch={false}>
+        <div className="flex flex-row flex-wrap">
+          <div className="mx-2 mt-2">
+            <Image src={settings.logo} width={32} height={32} alt="logo" />
+          </div>
+          <div className="flex-grow mt-3 mr-4">
+            <p className="text-xl">{settings.name}</p>
+          </div>
         </div>
-        <div className="flex-grow mt-3">
-          <p className="text-xl">{settings.name}</p>
-        </div>
-      </div>
+      </Link>
       <Listbox
         aria-label="admin menu"
         className="py-4"

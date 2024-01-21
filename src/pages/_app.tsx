@@ -1,6 +1,3 @@
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
-import useSettings from "@/constants/settings";
 import "@/styles/globals.css";
 import { NextUIProvider } from "@nextui-org/react";
 import {

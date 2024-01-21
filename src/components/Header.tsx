@@ -64,9 +64,7 @@ export default function Header({
                 height={32}
                 className="mx-2"
               />
-              <p className="font-bold text-inherit hidden sm:block">
-                {settings?.name}
-              </p>
+              <p className="text-inherit hidden sm:block">{settings?.name}</p>
             </NavbarBrand>
           </Link>
         </NavbarContent>

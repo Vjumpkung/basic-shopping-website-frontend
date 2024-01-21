@@ -1,5 +1,6 @@
 import { Image } from "@nextui-org/react";
 import { useEffect, useState } from "react";
+import { CaretLeftFill, CaretRightFill } from "react-bootstrap-icons";
 
 export default function LightBox({
   images,
@@ -66,7 +67,9 @@ export default function LightBox({
           }}
         >
           <button onClick={showPrev} className="sm:px-6 px-1">
-            <p className="font-medium md:text-6xl text-xl">{"<"}</p>
+            <p className="font-medium md:text-6xl text-xl text-white">
+              <CaretLeftFill />
+            </p>
           </button>
           <Image
             radius="none"
@@ -75,7 +78,9 @@ export default function LightBox({
             src={imageToShow}
           />
           <button onClick={showNext} className="sm:px-6 px-1">
-            <p className="font-medium md:text-6xl text-xl">{">"}</p>
+            <p className="font-medium md:text-6xl text-xl text-white">
+              <CaretRightFill />
+            </p>
           </button>
         </div>
       ) : (

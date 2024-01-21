@@ -1,13 +1,7 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
-import { choiceSchema, settingsSchema } from "@/types/swagger.types";
-import {
-  Button,
-  Input,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@nextui-org/react";
+import { settingsSchema } from "@/types/swagger.types";
+import { Button, Input } from "@nextui-org/react";
 import { InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
