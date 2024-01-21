@@ -11,14 +11,23 @@ import {
   Image,
   Textarea,
 } from "@nextui-org/react";
+import "github-markdown-css/github-markdown-light.css";
 import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
-import { calculatedChoicePrice, priceRange } from "..";
 import { CaretLeftFill, CaretRightFill } from "react-bootstrap-icons";
+import Markdown from "react-markdown";
+import { toast } from "react-toastify";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+import remarkGfm from "remark-gfm";
+import remarkToc from "remark-toc";
+import { calculatedChoicePrice, priceRange } from "..";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github.css";
+import emoji from "remark-emoji";
 
 export default function Product({
   product,
@@ -348,7 +357,16 @@ export default function Product({
         <div className="grid grid-cols-1 py-8 px-2">
           <div>
             <h2 className="text-xl font-bold">รายละเอียด</h2>
-            <p className="text-left linebreak">{product.description}</p>
+            <div className="prose all-initial">
+              <div className="markdown-body">
+                <Markdown
+                  rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight]}
+                  remarkPlugins={[remarkGfm, remarkToc, emoji]}
+                >
+                  {product.description}
+                </Markdown>
+              </div>
+            </div>
           </div>
         </div>
       </div>
