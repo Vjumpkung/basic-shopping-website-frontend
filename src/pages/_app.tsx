@@ -27,9 +27,6 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <>
-      <Head>
-        <link rel="icon" href={settings?.logo} />
-      </Head>
       <QueryClientProvider client={queryClient}>
         <HydrationBoundary state={pageProps.dehydratedState}>
           <PagesProgressBar
