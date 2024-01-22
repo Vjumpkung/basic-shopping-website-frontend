@@ -6,6 +6,7 @@ import { useRegister } from "@/utils/register";
 import { Button, Image, Input } from "@nextui-org/react";
 import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -88,15 +89,17 @@ export default function SignUp({
     >
       <title>{settings?.name + "- ลงทะเบียน"}</title>
       <form className="flex flex-col items-center justify-center gap-4 w-full max-w-xl m-auto px-2">
-        <Image
-          as={NextImage}
-          width={100}
-          height={100}
-          src={settings?.logo}
-          quality={100}
-          alt="settings logo"
-        />
-        <h1 className="text-2xl font-bold text-center">{settings?.name}</h1>
+        <Link href="/">
+          <Image
+            as={NextImage}
+            width={100}
+            height={100}
+            src={settings?.logo}
+            quality={100}
+            alt="settings logo"
+          />
+        </Link>
+        <h1 className="text-2xl text-center">{settings?.name}</h1>
         <Input
           className="p-1"
           size="sm"

@@ -80,13 +80,15 @@ export default function SignIn({
     >
       <title>{settings?.name + " - ลงชื่อเข้าใช้"}</title>
       <form className="flex flex-col items-center justify-center gap-4 w-full max-w-xl m-auto px-2">
-        <Image
-          width={100}
-          height={100}
-          src={settings?.logo}
-          alt="settings logo"
-        />
-        <h1 className="text-2xl font-bold text-center">{settings?.name}</h1>
+        <Link href="/">
+          <Image
+            width={100}
+            height={100}
+            src={settings?.logo}
+            alt="settings logo"
+          />
+        </Link>
+        <h1 className="text-2xl text-center">{settings?.name}</h1>
         <Input
           className="p-1"
           size="sm"
