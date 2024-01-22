@@ -13,6 +13,10 @@ export const useRegister = () => {
       }
     );
 
+    if (response.status === 400) {
+      throw new Error();
+    }
+
     const registerResponse = data as RegisterResponseDto;
 
     return registerResponse;

@@ -68,10 +68,15 @@ export default function SignUp({
       return;
     }
 
-    register(username, password).then((res) => {
-      toast.success("ลงทะเบียนสำเร็จ", { position: "bottom-right" });
-      router.push("/signin");
-    });
+    register(username, password)
+      .then((res) => {
+        toast.success("ลงทะเบียนสำเร็จ", { position: "bottom-right" });
+        router.push("/signin");
+      })
+      .catch((err) => {
+        setIsUsernameEmpty(true);
+        setUsernameErrorMessage("ชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว");
+      });
 
     setIsExecute(false);
   }

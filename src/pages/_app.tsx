@@ -1,3 +1,4 @@
+import useSettings from "@/constants/settings";
 import "@/styles/globals.css";
 import { NextUIProvider } from "@nextui-org/react";
 import {
@@ -8,6 +9,7 @@ import {
 import { PagesProgressBar } from "next-nprogress-bar";
 import { AppProps } from "next/app";
 import { Kanit } from "next/font/google";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { ToastContainer } from "react-toastify";
@@ -21,9 +23,13 @@ const kanit = Kanit({
 export default function MyApp({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(() => new QueryClient());
   const router = useRouter();
+  const settings = useSettings();
 
   return (
     <>
+      <Head>
+        <link rel="icon" href={settings?.logo} />
+      </Head>
       <QueryClientProvider client={queryClient}>
         <HydrationBoundary state={pageProps.dehydratedState}>
           <PagesProgressBar
