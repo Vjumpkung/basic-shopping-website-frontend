@@ -1,14 +1,14 @@
 import client from "@/api/client";
 import UserLayout from "@/components/UserLayout";
 import {
-  ProductResponseDto,
+  ProductAllResponseDto,
   choiceSchema,
   settingsSchema,
 } from "@/types/swagger.types";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/react";
 import { useQuery } from "@tanstack/react-query";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
 
@@ -39,19 +39,13 @@ async function fetchProduct() {
     },
   });
 
-  return res.data;
+  return res;
 }
 
 export default function Home({
+  products,
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
-  const { isLoading, error, data } = useQuery({
-    queryFn: fetchProduct,
-    queryKey: ["products"],
-  });
-
-  const products = data as ProductResponseDto[] | undefined;
-
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <UserLayout settings={settings}>
       <main>
@@ -114,15 +108,19 @@ export default function Home({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
+
+  const fetchProducts = await fetchProduct();
+
+  const products = fetchProducts.data as ProductAllResponseDto[] | undefined;
 
   const settings = data as settingsSchema;
 
   return {
     props: {
+      products,
       settings,
     },
-    revalidate: 1,
   };
 }

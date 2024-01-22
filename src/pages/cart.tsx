@@ -2,7 +2,7 @@ import client from "@/api/client";
 import UserLayout from "@/components/UserLayout";
 import { CartResponseDto, settingsSchema } from "@/types/swagger.types";
 import { Button, Card, CardHeader, Checkbox } from "@nextui-org/react";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 
 export default function Cart({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [willOrder, setWillOrder] = useState<string[]>([]);
   const [cart, setCart] = useState<CartResponseDto[] | undefined>([]);
   const [trigger, setTrigger] = useState<boolean>(false);
@@ -154,7 +154,7 @@ export default function Cart({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -163,6 +163,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }

@@ -182,6 +182,36 @@ export interface components {
       /** @description choice price */
       price: number;
     };
+    ProductsAllResponseDto: {
+      /** @description product id */
+      _id: string;
+      /** @description product name */
+      name: string;
+      /**
+       * @description choices of product
+       * @default []
+       */
+      choices: components["schemas"]["choiceSchema"][];
+      /**
+       * @description product image
+       * @default []
+       */
+      image: string[];
+      /** @description product price */
+      price: number;
+      /** @description product availability */
+      isAvailable: boolean;
+      /**
+       * Format: date-time
+       * @description product published date
+       */
+      published_at: string;
+      /**
+       * Format: date-time
+       * @description product deleted date
+       */
+      deleted_at: string;
+    };
     ProductsResponseDto: {
       /** @description product id */
       _id: string;
@@ -616,7 +646,7 @@ export interface operations {
     responses: {
       default: {
         content: {
-          "application/json": components["schemas"]["ProductsResponseDto"][];
+          "application/json": components["schemas"]["ProductsAllResponseDto"][];
         };
       };
     };

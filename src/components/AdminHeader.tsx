@@ -9,7 +9,6 @@ import {
   DoorClosed,
   FileEarmarkPerson,
   Gear,
-  House,
   Person,
   Shop,
 } from "react-bootstrap-icons";

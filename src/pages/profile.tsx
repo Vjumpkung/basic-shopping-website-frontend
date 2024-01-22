@@ -21,7 +21,7 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -100,7 +100,7 @@ async function getUserOrders(token: string) {
 
 export default function Profile({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const [me, setMe] = useState<ProfileResponseDto | undefined>();
   const [selectedAddress, setSelectedAddress] = useState<string | undefined>();
@@ -301,7 +301,7 @@ export default function Profile({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -310,6 +310,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }

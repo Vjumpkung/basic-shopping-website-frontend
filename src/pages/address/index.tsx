@@ -10,14 +10,14 @@ import {
   Chip,
   Divider,
 } from "@nextui-org/react";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export default function ManageAddress({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [addresses, setAddresses] = useState<addressSchema[] | undefined>([]);
   const [token, setToken] = useState<string>("");
   const router = useRouter();
@@ -121,7 +121,7 @@ export default function ManageAddress({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -130,6 +130,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }

@@ -1,5 +1,7 @@
 import { components } from "@/schema";
 
+export type ProductAllResponseDto =
+  components["schemas"]["ProductsAllResponseDto"];
 export type ProductResponseDto = components["schemas"]["ProductsResponseDto"];
 export type settingsSchema = components["schemas"]["settingsSchema"];
 export type choiceSchema = components["schemas"]["choiceSchema"];

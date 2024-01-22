@@ -1,13 +1,13 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { settingsSchema } from "@/types/swagger.types";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType, InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 export default function AdminPage({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
@@ -44,7 +44,7 @@ export default function AdminPage({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -53,6 +53,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }

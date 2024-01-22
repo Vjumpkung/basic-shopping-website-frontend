@@ -2,7 +2,7 @@ import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { settingsSchema } from "@/types/swagger.types";
 import { Button, Image, Input } from "@nextui-org/react";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import { CldUploadButton, CldUploadWidgetInfo } from "next-cloudinary";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 
 export default function ShopSettings({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [loadsettings, setLoadSettings] = useState<settingsSchema>(settings);
   const [token, setToken] = useState<string | null>(null);
   const [isLogoHover, setIsLogoHover] = useState<boolean>(false);
@@ -202,7 +202,7 @@ export default function ShopSettings({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -211,6 +211,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }

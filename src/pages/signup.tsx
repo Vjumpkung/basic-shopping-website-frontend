@@ -4,7 +4,7 @@ import { EyeSlashFilledIcon } from "@/components/EyeSlashFilledIcon";
 import { settingsSchema } from "@/types/swagger.types";
 import { useRegister } from "@/utils/register";
 import { Button, Image, Input } from "@nextui-org/react";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 
 export default function SignUp({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -80,7 +80,7 @@ export default function SignUp({
     if (token !== null) {
       router.push("/");
     }
-  });
+  }, []);
 
   return (
     <main
@@ -166,7 +166,7 @@ export default function SignUp({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -175,6 +175,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }

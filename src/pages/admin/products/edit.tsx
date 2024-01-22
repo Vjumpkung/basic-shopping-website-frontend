@@ -28,7 +28,7 @@ import {
   Textarea,
   useDisclosure,
 } from "@nextui-org/react";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import { CldUploadButton, CldUploadWidgetInfo } from "next-cloudinary";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -38,7 +38,7 @@ import { toast } from "react-toastify";
 
 export default function EditProduct({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const id = router.query.id;
   const [product, setProduct] = useState<ProductResponseDto | undefined>(
@@ -547,7 +547,7 @@ export default function EditProduct({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -556,6 +556,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }

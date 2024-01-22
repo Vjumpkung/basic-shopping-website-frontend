@@ -10,14 +10,14 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { PencilSquare } from "react-bootstrap-icons";
 
 export default function ManageChoices({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [token, setToken] = useState<string | null>(null);
   const [choices, setChoices] = useState<choiceSchema[] | undefined>(undefined); // [1
   const router = useRouter();
@@ -101,7 +101,7 @@ export default function ManageChoices({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -110,6 +110,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }

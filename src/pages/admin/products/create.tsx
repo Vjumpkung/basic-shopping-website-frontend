@@ -30,7 +30,7 @@ import { toast } from "react-toastify";
 
 export default function CreateProduct({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetStaticPropsType<typeof getServerSideProps>) {
   const router = useRouter();
 
   const [resource, setResource] = useState<CldUploadWidgetInfo | null>(null);
@@ -418,7 +418,7 @@ export default function CreateProduct({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -427,6 +427,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }

@@ -1,6 +1,6 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
-import { ProductResponseDto, settingsSchema } from "@/types/swagger.types";
+import { ProductAllResponseDto, settingsSchema } from "@/types/swagger.types";
 import {
   Button,
   Switch,
@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -19,11 +19,11 @@ import { PencilSquare } from "react-bootstrap-icons";
 
 export default function AllProducts({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
   const [showAll, setShowAll] = useState<boolean>(true);
-  const [products, setProducts] = useState<ProductResponseDto[] | undefined>(
+  const [products, setProducts] = useState<ProductAllResponseDto[] | undefined>(
     undefined
   );
 
@@ -158,7 +158,7 @@ export default function AllProducts({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -167,6 +167,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }

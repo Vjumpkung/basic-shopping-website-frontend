@@ -12,14 +12,14 @@ import {
   Textarea,
   useDisclosure,
 } from "@nextui-org/react";
-import { InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export default function EditAddress({
   settings,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [address, setAddress] = useState<addressSchema | undefined>(undefined);
   const [title, setTitle] = useState<string>("");
   const [telephone, setTelephone] = useState<string>("");
@@ -213,7 +213,7 @@ export default function EditAddress({
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
@@ -222,6 +222,5 @@ export async function getStaticProps() {
     props: {
       settings,
     },
-    revalidate: 1,
   };
 }
