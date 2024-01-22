@@ -5,6 +5,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { PagesProgressBar } from "next-nprogress-bar";
 import { AppProps } from "next/app";
 import { Kanit } from "next/font/google";
 import { useRouter } from "next/router";
@@ -25,6 +26,11 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     <>
       <QueryClientProvider client={queryClient}>
         <HydrationBoundary state={pageProps.dehydratedState}>
+          <PagesProgressBar
+            color="#0070f0"
+            options={{ showSpinner: false }}
+            shallowRouting
+          />
           <NextUIProvider navigate={router.push}>
             <main className={kanit.className}>
               <ToastContainer />
