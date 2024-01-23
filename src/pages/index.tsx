@@ -7,7 +7,6 @@ import {
 } from "@/types/swagger.types";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/react";
-import { useQuery } from "@tanstack/react-query";
 import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
