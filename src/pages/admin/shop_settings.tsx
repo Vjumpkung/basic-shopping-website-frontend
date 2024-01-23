@@ -12,6 +12,7 @@ export default function ShopSettings({
   settings,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [loadsettings, setLoadSettings] = useState<settingsSchema>(settings);
+  const [previewlogo, setPreviewLogo] = useState<string>(settings.logo);
   const [token, setToken] = useState<string | null>(null);
   const [isLogoHover, setIsLogoHover] = useState<boolean>(false);
   const [showLogoSettings, setShowLogoSettings] = useState<boolean>(false);
@@ -73,6 +74,10 @@ export default function ShopSettings({
     }
   }, []);
 
+  useEffect(() => {
+    setConfigLogo(resource?.secure_url as string);
+  }, [resource]);
+
   return (
     <AdminLayout settings={loadsettings}>
       <title>{loadsettings?.name + " - ตั้งค่าร้านค้า"}</title>
@@ -105,7 +110,7 @@ export default function ShopSettings({
                 แก้ไขโลโก้
               </div>
               <Image
-                src={loadsettings.logo}
+                src={previewlogo}
                 width={120}
                 height={120}
                 className="aspect-square px-2 py-2"
@@ -119,23 +124,22 @@ export default function ShopSettings({
             <Input
               value={configlogo}
               onChange={(e) => {
+                setPreviewLogo(e.target.value);
                 setConfigLogo(e.target.value);
               }}
             />
             <div className="my-2 flex flex-row">
               <div className="flex-auto self-start">
-                <Button>
-                  <CldUploadButton
-                    uploadPreset="n1wehvy6"
-                    onUpload={(result, widget) => {
-                      setResource(result?.info as CldUploadWidgetInfo);
-                      setConfigLogo(resource?.secure_url as string);
-                      widget.close();
-                    }}
-                  >
-                    อัพโหลดรูปภาพ
-                  </CldUploadButton>
-                </Button>
+                <CldUploadButton
+                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-xl text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                  uploadPreset="n1wehvy6"
+                  onUpload={(result, widget) => {
+                    setResource(result?.info as CldUploadWidgetInfo);
+                    widget.close();
+                  }}
+                >
+                  อัพโหลดรูปภาพ
+                </CldUploadButton>
               </div>
               <div className="self-end">
                 <Button

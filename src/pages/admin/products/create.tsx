@@ -337,10 +337,10 @@ export default function CreateProduct({
           })}
         </div>
         <div className="">
-          <form>
+          <form className="pt-3">
             {images?.map((input, index) => {
               return (
-                <div key={index} className="flex flex-row py-3 gap-3">
+                <div key={index} className="flex flex-row pb-3 gap-3">
                   <div className="flex-grow">
                     <Input
                       type="text"

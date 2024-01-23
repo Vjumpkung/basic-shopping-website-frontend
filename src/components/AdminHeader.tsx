@@ -21,13 +21,13 @@ export default function AdminHeader({
   const router = useRouter();
 
   return (
-    <div className="rounded-md max-w-xs flex-none mx-5 my-5 px-2 py-2 bg-white">
+    <div className="rounded-md max-w-xs w-full flex-none mx-5 my-5 px-2 py-2 bg-white">
       <Link href="/" prefetch={false}>
         <div className="flex flex-row flex-wrap">
           <div className="mx-2 mt-2">
             <Image src={settings.logo} width={32} height={32} alt="logo" />
           </div>
-          <div className="flex-grow mt-3 mr-4">
+          <div className="flex-grow mt-3 mr-4 truncate">
             <p className="text-xl">{settings.name}</p>
           </div>
         </div>
