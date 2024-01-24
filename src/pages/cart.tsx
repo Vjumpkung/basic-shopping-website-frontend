@@ -1,7 +1,9 @@
 import client from "@/api/client";
 import UserLayout from "@/components/UserLayout";
 import { CartResponseDto, settingsSchema } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import { Button, Card, CardHeader, Checkbox } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,15 +13,16 @@ import { toast } from "react-toastify";
 
 export default function Cart({
   settings,
+  profile,
+  shopping_jwt,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [willOrder, setWillOrder] = useState<string[]>([]);
   const [cart, setCart] = useState<CartResponseDto[] | undefined>([]);
   const [trigger, setTrigger] = useState<boolean>(false);
-
+  const token = shopping_jwt;
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
     if (token !== null) {
       client
         .GET("/api/v1/shopping-cart/user", {
@@ -36,7 +39,6 @@ export default function Cart({
   }, [trigger, router]);
 
   async function removeItemFromCart(id: string) {
-    const token = localStorage.getItem("shopping-jwt");
     await client.DELETE("/api/v1/shopping-cart/remove", {
       params: {
         query: {
@@ -52,7 +54,7 @@ export default function Cart({
   }
 
   return (
-    <UserLayout settings={settings}>
+    <UserLayout settings={settings} profile={profile}>
       <title>{settings?.name + " - ตะกร้าของฉัน"}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">ตะกร้าของฉัน</h2>
@@ -154,14 +156,29 @@ export default function Cart({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req, res }: { req: any; res: any }) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
-    },
-  };
+  const shopping_jwt = getCookie("shopping-jwt", { req, res }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
+  if (shopping_jwt) {
+    return {
+      props: {
+        settings,
+        profile,
+        shopping_jwt,
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }

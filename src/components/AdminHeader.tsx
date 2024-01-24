@@ -1,5 +1,6 @@
 import { settingsSchema } from "@/types/swagger.types";
 import { Listbox, ListboxItem } from "@nextui-org/react";
+import { deleteCookie } from "cookies-next";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -42,7 +43,7 @@ export default function AdminHeader({
           if (item !== "logout") {
             router.push(`/admin/${item}`);
           } else {
-            localStorage.removeItem("shopping-jwt");
+            deleteCookie("shopping-jwt");
             router.push(`/signin`);
           }
         }}

@@ -28,13 +28,17 @@ import { calculatedChoicePrice, priceRange } from "..";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github.css";
 import emoji from "remark-emoji";
+import { getCookie } from "cookies-next";
+import { getProfile } from "@/utils/profile";
 
 export default function Product({
   product,
   settings,
+  shopping_jwt,
+  profile,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const elementRef = useRef(null);
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string | null>(shopping_jwt);
   const [price, SetPrice] = useState<number>(-1);
   const [quantity, SetQuantity] = useState<number>(0);
   const [selectedChoice, SetSelectedChoice] = useState<string>("");
@@ -44,11 +48,6 @@ export default function Product({
   const [openLightBox, setOpenLightBox] = useState<boolean>(false);
 
   const path = usePathname();
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    setToken(token !== null ? token : "");
-  }, [token]);
 
   const addToCart = async () => {
     if (quantity === 0) {
@@ -106,7 +105,7 @@ export default function Product({
   };
 
   return (
-    <UserLayout settings={settings}>
+    <UserLayout settings={settings} profile={profile}>
       <title>{`${settings?.name} - ${product.name}`}</title>
       <div className="w-full sm:w-4/6 mx-auto">
         <Breadcrumbs className="sm:block hidden">
@@ -385,6 +384,12 @@ export const getServerSideProps = async (context: any) => {
 
   const get_settings = await client.GET("/api/v1/settings");
 
+  const shopping_jwt = getCookie("shopping-jwt", {
+    req: context.req,
+    res: context.res,
+  }) as string | null;
+  const profile = await getProfile(shopping_jwt);
+
   if (error) {
     return {
       notFound: true,
@@ -398,6 +403,8 @@ export const getServerSideProps = async (context: any) => {
     props: {
       product,
       settings,
+      shopping_jwt,
+      profile,
     },
   };
 };

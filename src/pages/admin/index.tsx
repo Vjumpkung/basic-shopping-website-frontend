@@ -1,36 +1,13 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { settingsSchema } from "@/types/swagger.types";
-import { InferGetServerSidePropsType, InferGetStaticPropsType } from "next";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { getProfile } from "@/utils/profile";
+import { getCookie } from "cookies-next";
+import { InferGetServerSidePropsType } from "next";
 
 export default function AdminPage({
   settings,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [token, setToken] = useState<string | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      setToken(token);
-      client
-        .GET("/api/v1/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          if (res.data?.role !== 100) {
-            router.push("/404");
-          }
-        });
-    } else {
-      router.push("/signin");
-    }
-  }, [token]);
-
   return (
     <AdminLayout settings={settings}>
       <title>{settings?.name + " - หน้าแอดมิน"}</title>
@@ -44,14 +21,36 @@ export default function AdminPage({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx: any) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
-    },
-  };
+  const shopping_jwt = getCookie("shopping-jwt", {
+    req: ctx.req,
+    res: ctx.res,
+  }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
+  if (shopping_jwt) {
+    if (profile?.role !== 100) {
+      return {
+        notFound: true,
+      };
+    }
+
+    return {
+      props: {
+        settings,
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }

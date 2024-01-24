@@ -5,6 +5,7 @@ import {
   ProfileResponseDto,
   settingsSchema,
 } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import {
   Avatar,
   Button,
@@ -21,11 +22,12 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 enum OrderStatus {
   MUST_BE_PAID = "รอการชำระเงิน",
@@ -78,16 +80,6 @@ function chipStatusColor(status: string) {
   }
 }
 
-async function getProfile(token: string) {
-  const { data } = await client.GET("/api/v1/auth/profile", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return data;
-}
-
 async function getUserOrders(token: string) {
   const { data } = await client.GET("/api/v1/orders/user", {
     headers: {
@@ -100,31 +92,18 @@ async function getUserOrders(token: string) {
 
 export default function Profile({
   settings,
+  profile,
+  orders,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const router = useRouter();
-  const [me, setMe] = useState<ProfileResponseDto | undefined>();
+  const [me, setMe] = useState<ProfileResponseDto | undefined | null>(profile);
   const [selectedAddress, setSelectedAddress] = useState<string | undefined>();
   const [recentOrders, setRecentOrders] = useState<
     OrdersByUserIdResponseDto[] | undefined
-  >([]);
+  >(orders);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      getProfile(token).then((res) => {
-        setMe(res);
-      });
-      getUserOrders(token).then((res) => {
-        setRecentOrders(res);
-      });
-    } else {
-      router.push("/signin");
-    }
-  }, [router]);
-
   return (
-    <UserLayout settings={settings}>
+    <UserLayout settings={settings} profile={profile}>
       <title>{settings?.name + " - บัญชีของฉัน"}</title>
       <div className="w-full lg:w-1/2 xl:w-1/3 mx-auto px-5">
         <h2 className="text-3xl">ข้อมูลของฉัน</h2>
@@ -301,14 +280,30 @@ export default function Profile({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req, res }: { req: any; res: any }) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
-    },
-  };
+  const shopping_jwt = getCookie("shopping-jwt", { req, res }) as string | null;
+
+  if (shopping_jwt) {
+    const profile = await getProfile(shopping_jwt);
+    const orders = await getUserOrders(shopping_jwt);
+    return {
+      props: {
+        settings,
+        shopping_jwt,
+        profile,
+        orders,
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }

@@ -1,6 +1,7 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { choiceSchema, settingsSchema } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import {
   Button,
   Table,
@@ -10,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -17,39 +19,12 @@ import { PencilSquare } from "react-bootstrap-icons";
 
 export default function ManageChoices({
   settings,
+  choices_res,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [token, setToken] = useState<string | null>(null);
-  const [choices, setChoices] = useState<choiceSchema[] | undefined>(undefined); // [1
+  const [choices, setChoices] = useState<choiceSchema[] | undefined>(
+    choices_res
+  );
   const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      setToken(token);
-      client
-        .GET("/api/v1/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          if (res.data?.role !== 100) {
-            router.push("/404");
-          }
-        });
-      client
-        .GET("/api/v1/choices", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          setChoices(res.data?.reverse());
-        });
-    } else {
-      router.push("/signin");
-    }
-  }, []);
 
   return (
     <AdminLayout settings={settings}>
@@ -101,14 +76,43 @@ export default function ManageChoices({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx: any) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
-    },
-  };
+  const shopping_jwt = getCookie("shopping-jwt", {
+    req: ctx.req,
+    res: ctx.res,
+  }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
+  if (shopping_jwt) {
+    if (profile?.role !== 100) {
+      return {
+        notFound: true,
+      };
+    }
+
+    const choices_res = await client.GET("/api/v1/choices", {
+      headers: {
+        Authorization: `Bearer ${shopping_jwt}`,
+      },
+    });
+
+    return {
+      props: {
+        settings,
+        choices_res: (choices_res.data as choiceSchema[] | undefined) || [],
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }

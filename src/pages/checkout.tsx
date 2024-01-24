@@ -5,6 +5,7 @@ import {
   addressSchema,
   settingsSchema,
 } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import {
   Button,
   Card,
@@ -21,6 +22,7 @@ import {
   Textarea,
   useDisclosure,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -29,9 +31,11 @@ import { toast } from "react-toastify";
 
 export default function Checkout({
   settings,
+  profile,
+  shopping_jwt,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string | null>(shopping_jwt);
   const [address, setAddress] = useState<addressSchema | undefined>(undefined);
   const willOrder = router.query.cart?.toString().split(",");
   const [cart, setCart] = useState<CartResponseDto[] | undefined>([]);
@@ -41,11 +45,6 @@ export default function Checkout({
   ); // address id
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [addresses, setAddresses] = useState<addressSchema[] | undefined>([]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    setToken(token as string);
-  }, []);
 
   useEffect(() => {
     if (token !== "") {
@@ -130,7 +129,7 @@ export default function Checkout({
   }
 
   return (
-    <UserLayout settings={settings}>
+    <UserLayout settings={settings} profile={profile}>
       <title>{settings?.name + " - ชำระเงิน"}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">ชำระเงิน</h2>
@@ -275,14 +274,29 @@ export default function Checkout({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req, res }: { req: any; res: any }) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
-    },
-  };
+  const shopping_jwt = getCookie("shopping-jwt", { req, res }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
+  if (shopping_jwt) {
+    return {
+      props: {
+        settings,
+        profile,
+        shopping_jwt,
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }

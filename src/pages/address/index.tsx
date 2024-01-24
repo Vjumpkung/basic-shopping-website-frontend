@@ -1,6 +1,7 @@
 import client from "@/api/client";
 import UserLayout from "@/components/UserLayout";
 import { addressSchema, settingsSchema } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import {
   Button,
   Card,
@@ -10,6 +11,7 @@ import {
   Chip,
   Divider,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -17,9 +19,14 @@ import { toast } from "react-toastify";
 
 export default function ManageAddress({
   settings,
+  profile,
+  shopping_jwt,
+  addresses_res,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [addresses, setAddresses] = useState<addressSchema[] | undefined>([]);
-  const [token, setToken] = useState<string>("");
+  const [addresses, setAddresses] = useState<addressSchema[] | undefined>(
+    addresses_res
+  );
+  const [token, setToken] = useState<string | null>(shopping_jwt);
   const router = useRouter();
 
   async function create_address() {
@@ -45,25 +52,8 @@ export default function ManageAddress({
     router.push(`/address/edit?id=${data?._id}`);
   }
 
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    setToken(token as string);
-    if (token === null) {
-      router.push("/signin");
-    }
-    client
-      .GET("/api/v1/addresses", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        setAddresses(res.data);
-      });
-  }, [router]);
-
   return (
-    <UserLayout settings={settings}>
+    <UserLayout settings={settings} profile={profile}>
       <title>{`${settings?.name} - ที่อยู่ของฉัน`}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">ที่อยู่ของฉัน</h2>
@@ -121,14 +111,36 @@ export default function ManageAddress({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req, res }: any) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
+  const shopping_jwt = getCookie("shopping-jwt", { req, res }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
+  const addresses = await client.GET("/api/v1/addresses", {
+    headers: {
+      Authorization: `Bearer ${shopping_jwt}`,
     },
-  };
+  });
+
+  if (shopping_jwt) {
+    return {
+      props: {
+        settings,
+        profile,
+        shopping_jwt,
+        addresses_res: addresses.data as addressSchema[],
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }

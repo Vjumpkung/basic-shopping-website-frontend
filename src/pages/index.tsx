@@ -5,8 +5,10 @@ import {
   choiceSchema,
   settingsSchema,
 } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
@@ -44,9 +46,10 @@ async function fetchProduct() {
 export default function Home({
   products,
   settings,
+  profile,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
-    <UserLayout settings={settings}>
+    <UserLayout settings={settings} profile={profile}>
       <main>
         <title>{`${settings?.name} - หน้าแรก`}</title>
         <div className="w-5/6 mx-auto">
@@ -107,7 +110,7 @@ export default function Home({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req, res }: { req: any; res: any }) {
   const { data } = await client.GET("/api/v1/settings");
 
   const fetchProducts = await fetchProduct();
@@ -116,10 +119,15 @@ export async function getServerSideProps() {
 
   const settings = data as settingsSchema;
 
+  const shopping_jwt = getCookie("shopping-jwt", { req, res }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
   return {
     props: {
       products,
       settings,
+      profile,
     },
   };
 }

@@ -4,6 +4,7 @@ import { EyeSlashFilledIcon } from "@/components/EyeSlashFilledIcon";
 import { settingsSchema } from "@/types/swagger.types";
 import { useLogin } from "@/utils/login";
 import { Button, Image, Input } from "@nextui-org/react";
+import { getCookie, setCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -42,7 +43,7 @@ export default function SignIn({
 
     login(username, password)
       .then((res) => {
-        localStorage.setItem("shopping-jwt", res.access_token);
+        setCookie("shopping-jwt", res.access_token);
 
         client
           .GET("/api/v1/auth/profile", {
@@ -66,13 +67,6 @@ export default function SignIn({
 
     setIsExecute(false);
   }
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      router.push("/");
-    }
-  }, []);
 
   return (
     <main
@@ -145,10 +139,24 @@ export default function SignIn({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req, res }: { req: any; res: any }) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
+
+  const shopping_jwt = getCookie("shopping-jwt", { req, res }) as
+    | string
+    | undefined
+    | null;
+
+  if (shopping_jwt) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 
   return {
     props: {

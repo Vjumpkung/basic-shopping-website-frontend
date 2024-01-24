@@ -1,48 +1,33 @@
+import { ProfileResponseDto, settingsSchema } from "@/types/swagger.types";
 import {
+  Avatar,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
   Navbar,
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  Avatar,
-  DropdownTrigger,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
-  Badge,
 } from "@nextui-org/react";
-import { ProfileResponseDto, settingsSchema } from "@/types/swagger.types";
+import { deleteCookie } from "cookies-next";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import client from "@/api/client";
+import { useState } from "react";
 import { toast } from "react-toastify";
 
 export default function Header({
   settings,
+  profile,
 }: {
   settings: settingsSchema | undefined;
+  profile: ProfileResponseDto | null | undefined;
 }) {
-  const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [isLogin, setIsLogin] = useState<boolean>(profile ? true : false);
   const router = useRouter();
 
-  const [me, setMe] = useState<ProfileResponseDto | undefined>();
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      setIsLogin(true);
-      client
-        .GET("/api/v1/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          setMe(res.data);
-        });
-    }
-  }, [router]);
+  const me = profile;
 
   const logout_notify = () =>
     toast.info("คุณได้ออกจากระบบแล้ว", { position: "bottom-right" });
@@ -130,7 +115,7 @@ export default function Header({
                     color="danger"
                     onClick={() => {
                       logout_notify();
-                      localStorage.removeItem("shopping-jwt");
+                      deleteCookie("shopping-jwt");
                       setIsLogin(false);
                       router.push("/");
                     }}

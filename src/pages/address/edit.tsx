@@ -1,6 +1,7 @@
 import client from "@/api/client";
 import UserLayout from "@/components/UserLayout";
 import { addressSchema, settingsSchema } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import {
   Button,
   Input,
@@ -12,6 +13,7 @@ import {
   Textarea,
   useDisclosure,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -19,54 +21,23 @@ import { toast } from "react-toastify";
 
 export default function EditAddress({
   settings,
+  profile,
+  shopping_jwt,
+  address_res,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [address, setAddress] = useState<addressSchema | undefined>(undefined);
-  const [title, setTitle] = useState<string>("");
-  const [telephone, setTelephone] = useState<string>("");
-  const [address1, setAddress1] = useState<string>("");
-  const [isdefault, setIsdefault] = useState<boolean>(false);
+  const token = shopping_jwt;
+  const [address, setAddress] = useState<addressSchema | undefined>(
+    address_res
+  );
+  const [title, setTitle] = useState<string>(address_res.title);
+  const [telephone, setTelephone] = useState<string>(address_res.telephone);
+  const [address1, setAddress1] = useState<string>(address_res.address);
+  const [isdefault, setIsdefault] = useState<boolean>(address_res.default);
   const router = useRouter();
   const id = router.query.id as string;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  useEffect(() => {
-    if (id === undefined) {
-      router.push("/address");
-    } else {
-      const token = localStorage.getItem("shopping-jwt");
-      if (token === null) {
-        router.push("/signin");
-      }
-      client
-        .GET("/api/v1/addresses/{id}", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: {
-            path: {
-              id: id,
-            },
-          },
-        })
-        .then((res) => {
-          setAddress(res.data);
-          setTitle(address?.title as string);
-          setTelephone(address?.telephone as string);
-          setAddress1(address?.address as string);
-          setIsdefault(address?.default as boolean);
-        });
-    }
-  }, [
-    address?.address,
-    address?.default,
-    address?.title,
-    address?.telephone,
-    id,
-    router,
-  ]);
-
   async function saveAddress() {
-    const token = localStorage.getItem("shopping-jwt");
     await client.PATCH("/api/v1/addresses/{id}", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -97,7 +68,6 @@ export default function EditAddress({
       return;
     }
 
-    const token = localStorage.getItem("shopping-jwt");
     await client.DELETE("/api/v1/addresses/{id}", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -109,18 +79,13 @@ export default function EditAddress({
       },
     });
     toast.info("ลบที่อยู่เรียบร้อยแล้ว", { position: "bottom-right" });
-    router.push("/address");
+    setTimeout(() => {
+      router.push("/address");
+    }, 500);
   }
 
-  useEffect(() => {
-    setTitle(address?.title as string);
-    setTelephone(address?.telephone as string);
-    setAddress1(address?.address as string);
-    setIsdefault(address?.default as boolean);
-  }, [address]);
-
   return (
-    <UserLayout settings={settings}>
+    <UserLayout settings={settings} profile={profile}>
       <title>{`${settings?.name} - แก้ไขที่อยู่`}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">แก้ไขที่อยู่</h2>
@@ -213,14 +178,53 @@ export default function EditAddress({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx: any) {
   const { data } = await client.GET("/api/v1/settings");
+
+  if (ctx.query.id === undefined) {
+    return {
+      redirect: {
+        destination: "/address",
+        permanent: false,
+      },
+    };
+  }
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
+  const shopping_jwt = getCookie("shopping-jwt", {
+    req: ctx.req,
+    res: ctx.res,
+  }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
+  const address = await client.GET("/api/v1/addresses/{id}", {
+    headers: {
+      Authorization: `Bearer ${shopping_jwt}`,
     },
-  };
+    params: {
+      path: {
+        id: ctx.query.id as string,
+      },
+    },
+  });
+
+  if (shopping_jwt) {
+    return {
+      props: {
+        settings,
+        profile,
+        shopping_jwt,
+        address_res: address.data as addressSchema,
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }

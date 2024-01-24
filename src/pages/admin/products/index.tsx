@@ -1,6 +1,7 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { ProductAllResponseDto, settingsSchema } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import {
   Button,
   Switch,
@@ -11,52 +12,19 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PencilSquare } from "react-bootstrap-icons";
 
 export default function AllProducts({
   settings,
+  products,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
   const [showAll, setShowAll] = useState<boolean>(true);
-  const [products, setProducts] = useState<ProductAllResponseDto[] | undefined>(
-    undefined
-  );
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      setToken(token);
-      client
-        .GET("/api/v1/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          if (res.data?.role !== 100) {
-            router.push("/404");
-          }
-        });
-    } else {
-      router.push("/signin");
-    }
-    client
-      .GET("/api/v1/products", {
-        params: {
-          query: {
-            status: "all",
-          },
-        },
-      })
-      .then((res) => {
-        setProducts(res.data);
-      });
-  }, []);
 
   return (
     <AdminLayout settings={settings}>
@@ -158,14 +126,45 @@ export default function AllProducts({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx: any) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
-    },
-  };
+  const shopping_jwt = getCookie("shopping-jwt", {
+    req: ctx.req,
+    res: ctx.res,
+  }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
+  if (shopping_jwt) {
+    if (profile?.role !== 100) {
+      return {
+        notFound: true,
+      };
+    }
+
+    const products = await client.GET("/api/v1/products", {
+      params: {
+        query: {
+          status: "all",
+        },
+      },
+    });
+
+    return {
+      props: {
+        settings,
+        products: (products.data as ProductAllResponseDto[] | undefined) || [],
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }

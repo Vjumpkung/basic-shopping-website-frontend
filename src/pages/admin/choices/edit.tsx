@@ -1,6 +1,7 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { choiceSchema, settingsSchema } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import {
   Button,
   Input,
@@ -8,64 +9,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 
 export default function EditChoice({
   settings,
+  choice_res,
+  shopping_jwt,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const id = router.query.id;
-
-  const [choice, setChoice] = useState<choiceSchema | undefined>(undefined); // [1
-  const [choiceName, setChoiceName] = useState<string>("");
+  const [choice, setChoice] = useState<choiceSchema | undefined>(choice_res);
+  const [choiceName, setChoiceName] = useState<string>(choice?.name as string);
   const [choicePrice, setChoicePrice] = useState<number>(0);
-
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      setToken(token);
-      client
-        .GET("/api/v1/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          if (res.data?.role !== 100) {
-            router.push("/404");
-          }
-        });
-    } else {
-      router.push("/signin");
-    }
-    if (id === undefined) {
-      router.push("/admin/products");
-    }
-    client
-      .GET("/api/v1/choices/{id}", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
-          path: {
-            id: id as string,
-          },
-        },
-      })
-      .then((res) => {
-        setChoice(res.data);
-      });
-  }, []);
-
-  useEffect(() => {
-    setChoiceName(choice?.name as string);
-    setChoicePrice(choice?.price as number);
-  }, [choice]);
+  const token = shopping_jwt;
 
   function onSave() {
     client.PATCH("/api/v1/choices/{id}", {
@@ -182,14 +142,58 @@ export default function EditChoice({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx: any) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
-    },
-  };
+  const shopping_jwt = getCookie("shopping-jwt", {
+    req: ctx.req,
+    res: ctx.res,
+  }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
+  if (shopping_jwt) {
+    if (profile?.role !== 100) {
+      return {
+        notFound: true,
+      };
+    }
+
+    if (ctx.query.id === undefined) {
+      return {
+        redirect: {
+          destination: "/admin/choices",
+          permanent: false,
+        },
+      };
+    }
+
+    const choice = await client.GET("/api/v1/choices/{id}", {
+      headers: {
+        Authorization: `Bearer ${shopping_jwt}`,
+      },
+      params: {
+        path: {
+          id: ctx.query.id as string,
+        },
+      },
+    });
+
+    return {
+      props: {
+        settings,
+        shopping_jwt,
+        choice_res: choice.data as choiceSchema | undefined,
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }

@@ -5,6 +5,7 @@ import {
   choiceSchema,
   settingsSchema,
 } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import {
   Button,
   Checkbox,
@@ -28,6 +29,7 @@ import {
   Textarea,
   useDisclosure,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import { CldUploadButton, CldUploadWidgetInfo } from "next-cloudinary";
 import Image from "next/image";
@@ -38,62 +40,38 @@ import { toast } from "react-toastify";
 
 export default function EditProduct({
   settings,
+  shopping_jwt,
+  product_res,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const id = router.query.id;
   const [product, setProduct] = useState<ProductResponseDto | undefined>(
-    undefined
+    product_res
   );
 
   const [resource, setResource] = useState<CldUploadWidgetInfo | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [token, setToken] = useState<string | null>(null);
-  const [productName, setProductName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  const [token, setToken] = useState<string | null>(shopping_jwt);
+  const [productName, setProductName] = useState<string>(
+    product?.name as string
+  );
+  const [description, setDescription] = useState<string>(
+    product?.description as string
+  );
   const [choices, setChoices] = useState<choiceSchema[]>([]);
-  const [price, setPrice] = useState<number>(0);
-  const [images, setImages] = useState<string[]>([]);
-  const [isAvailable, setIsAvailable] = useState<boolean>(false);
-  const [published_at, setPublished_at] = useState<boolean>(false);
+  const [price, setPrice] = useState<number>(product?.price as number);
+  const [images, setImages] = useState<string[]>(product?.image as string[]);
+  const [isAvailable, setIsAvailable] = useState<boolean>(
+    product?.isAvailable as boolean
+  );
+  const [published_at, setPublished_at] = useState<boolean>(
+    product?.published_at !== null ? true : false
+  );
 
   const [newChoiceName, setNewChoiceName] = useState<string>("");
   const [newChoicePrice, setNewChoicePrice] = useState<number>(0);
 
   const [allChoices, setAllChoices] = useState<choiceSchema[] | undefined>([]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      setToken(token);
-      client
-        .GET("/api/v1/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          if (res.data?.role !== 100) {
-            router.push("/404");
-          }
-        });
-    } else {
-      router.push("/signin");
-    }
-    if (id === undefined) {
-      router.push("/admin/products");
-    }
-    client
-      .GET("/api/v1/products/{id}", {
-        params: {
-          path: {
-            id: id as string,
-          },
-        },
-      })
-      .then((res) => {
-        setProduct(res.data);
-      });
-  }, []);
 
   useEffect(() => {
     client
@@ -106,16 +84,6 @@ export default function EditProduct({
         setAllChoices(res.data);
       });
   }, [isOpen]);
-
-  useEffect(() => {
-    setProductName(product?.name as string);
-    setDescription(product?.description as string);
-    setChoices(product?.choices as choiceSchema[]);
-    setPrice(product?.price as number);
-    setImages(product?.image as string[]);
-    setIsAvailable(product?.isAvailable as boolean);
-    setPublished_at(product?.published_at !== null ? true : false);
-  }, [product]);
 
   useEffect(() => {
     if (resource !== null) {
@@ -547,14 +515,55 @@ export default function EditProduct({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx: any) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
-    },
-  };
+  const shopping_jwt = getCookie("shopping-jwt", {
+    req: ctx.req,
+    res: ctx.res,
+  }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
+  if (shopping_jwt) {
+    if (profile?.role !== 100) {
+      return {
+        notFound: true,
+      };
+    }
+
+    if (ctx.query.id === undefined) {
+      return {
+        redirect: {
+          destination: "/admin/products",
+          permanent: false,
+        },
+      };
+    }
+
+    const product = await client.GET("/api/v1/products/{id}", {
+      params: {
+        path: {
+          id: ctx.query.id as string,
+        },
+      },
+    });
+
+    return {
+      props: {
+        settings,
+        shopping_jwt,
+        product_res: product.data as ProductResponseDto | undefined,
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }

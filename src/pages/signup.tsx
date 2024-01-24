@@ -4,6 +4,7 @@ import { EyeSlashFilledIcon } from "@/components/EyeSlashFilledIcon";
 import { settingsSchema } from "@/types/swagger.types";
 import { useRegister } from "@/utils/register";
 import { Button, Image, Input } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
@@ -80,13 +81,6 @@ export default function SignUp({
 
     setIsExecute(false);
   }
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      router.push("/");
-    }
-  }, []);
 
   return (
     <main
@@ -174,10 +168,24 @@ export default function SignUp({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req, res }: { req: any; res: any }) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
+
+  const shopping_jwt = getCookie("shopping-jwt", { req, res }) as
+    | string
+    | undefined
+    | null;
+
+  if (shopping_jwt) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 
   return {
     props: {

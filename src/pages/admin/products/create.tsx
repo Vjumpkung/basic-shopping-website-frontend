@@ -1,6 +1,7 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { choiceSchema, settingsSchema } from "@/types/swagger.types";
+import { getProfile } from "@/utils/profile";
 import {
   Button,
   Checkbox,
@@ -20,6 +21,7 @@ import {
   Textarea,
   useDisclosure,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import { InferGetStaticPropsType } from "next";
 import { CldUploadButton, CldUploadWidgetInfo } from "next-cloudinary";
 import Image from "next/image";
@@ -30,12 +32,13 @@ import { toast } from "react-toastify";
 
 export default function CreateProduct({
   settings,
+  shopping_jwt,
 }: InferGetStaticPropsType<typeof getServerSideProps>) {
   const router = useRouter();
 
   const [resource, setResource] = useState<CldUploadWidgetInfo | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(shopping_jwt);
   const [productName, setProductName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [choices, setChoices] = useState<choiceSchema[]>([]);
@@ -46,26 +49,6 @@ export default function CreateProduct({
   const [newChoicePrice, setNewChoicePrice] = useState<number>(0);
 
   const [allChoices, setAllChoices] = useState<choiceSchema[] | undefined>([]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("shopping-jwt");
-    if (token !== null) {
-      setToken(token);
-      client
-        .GET("/api/v1/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          if (res.data?.role !== 100) {
-            router.push("/404");
-          }
-        });
-    } else {
-      router.push("/signin");
-    }
-  }, []);
 
   useEffect(() => {
     if (token !== null) {
@@ -418,14 +401,37 @@ export default function CreateProduct({
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx: any) {
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
 
-  return {
-    props: {
-      settings,
-    },
-  };
+  const shopping_jwt = getCookie("shopping-jwt", {
+    req: ctx.req,
+    res: ctx.res,
+  }) as string | null;
+
+  const profile = await getProfile(shopping_jwt);
+
+  if (shopping_jwt) {
+    if (profile?.role !== 100) {
+      return {
+        notFound: true,
+      };
+    }
+
+    return {
+      props: {
+        settings,
+        shopping_jwt,
+      },
+    };
+  } else {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 }
