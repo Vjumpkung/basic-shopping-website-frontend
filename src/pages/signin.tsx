@@ -43,7 +43,10 @@ export default function SignIn({
 
     login(username, password)
       .then((res) => {
-        setCookie("shopping-jwt", res.access_token);
+        setCookie("shopping-jwt", res.access_token, {
+          maxAge: 60 * 60 * 24 * 30,
+          path: "/",
+        });
 
         client
           .GET("/api/v1/auth/profile", {
