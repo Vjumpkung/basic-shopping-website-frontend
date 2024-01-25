@@ -14,12 +14,11 @@ import { toast } from "react-toastify";
 export default function Cart({
   settings,
   profile,
-  shopping_jwt,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [willOrder, setWillOrder] = useState<string[]>([]);
   const [cart, setCart] = useState<CartResponseDto[] | undefined>([]);
   const [trigger, setTrigger] = useState<boolean>(false);
-  const token = shopping_jwt;
+  const token = getCookie("shopping-jwt") as string | null;
   const router = useRouter();
 
   useEffect(() => {
@@ -170,7 +169,6 @@ export async function getServerSideProps({ req, res }: { req: any; res: any }) {
       props: {
         settings,
         profile,
-        shopping_jwt,
       },
     };
   } else {

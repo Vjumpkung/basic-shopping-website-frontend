@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
 } from "@nextui-org/react";
 import { getCookie } from "cookies-next";
+import { get } from "http";
 import { InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -18,14 +19,15 @@ import { toast } from "react-toastify";
 export default function EditChoice({
   settings,
   choice_res,
-  shopping_jwt,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const id = router.query.id;
   const [choice, setChoice] = useState<choiceSchema | undefined>(choice_res);
   const [choiceName, setChoiceName] = useState<string>(choice?.name as string);
-  const [choicePrice, setChoicePrice] = useState<number>(0);
-  const token = shopping_jwt;
+  const [choicePrice, setChoicePrice] = useState<number>(
+    choice?.price as number
+  );
+  const token = getCookie("shopping-jwt") as string | null;
 
   function onSave() {
     client.PATCH("/api/v1/choices/{id}", {
@@ -184,7 +186,6 @@ export async function getServerSideProps(ctx: any) {
     return {
       props: {
         settings,
-        shopping_jwt,
         choice_res: choice.data as choiceSchema | undefined,
       },
     };

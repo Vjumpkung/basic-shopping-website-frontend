@@ -20,13 +20,12 @@ import { toast } from "react-toastify";
 export default function ManageAddress({
   settings,
   profile,
-  shopping_jwt,
   addresses_res,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [addresses, setAddresses] = useState<addressSchema[] | undefined>(
     addresses_res
   );
-  const [token, setToken] = useState<string | null>(shopping_jwt);
+  const token = getCookie("shopping-jwt") as string | null;
   const router = useRouter();
 
   async function create_address() {
@@ -131,7 +130,6 @@ export async function getServerSideProps({ req, res }: any) {
       props: {
         settings,
         profile,
-        shopping_jwt,
         addresses_res: addresses.data as addressSchema[],
       },
     };

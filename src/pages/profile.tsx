@@ -26,7 +26,6 @@ import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useState } from "react";
 
 enum OrderStatus {
@@ -293,7 +292,6 @@ export async function getServerSideProps({ req, res }: { req: any; res: any }) {
     return {
       props: {
         settings,
-        shopping_jwt,
         profile,
         orders,
       },

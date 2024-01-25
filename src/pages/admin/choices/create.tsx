@@ -11,14 +11,13 @@ import { toast } from "react-toastify";
 
 export default function CreateChoice({
   settings,
-  shopping_jwt,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
 
   const [choiceName, setChoiceName] = useState<string>("");
   const [choicePrice, setChoicePrice] = useState<number>(0);
 
-  const token = shopping_jwt;
+  const token = getCookie("shopping-jwt") as string | null;
 
   function onCreate() {
     client.POST("/api/v1/choices", {
@@ -114,7 +113,6 @@ export async function getServerSideProps(ctx: any) {
     return {
       props: {
         settings,
-        shopping_jwt,
       },
     };
   } else {

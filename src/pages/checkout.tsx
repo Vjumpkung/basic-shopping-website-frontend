@@ -32,10 +32,9 @@ import { toast } from "react-toastify";
 export default function Checkout({
   settings,
   profile,
-  shopping_jwt,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
-  const [token, setToken] = useState<string | null>(shopping_jwt);
+  const token = getCookie("shopping-jwt") as string | null;
   const [address, setAddress] = useState<addressSchema | undefined>(undefined);
   const willOrder = router.query.cart?.toString().split(",");
   const [cart, setCart] = useState<CartResponseDto[] | undefined>([]);
@@ -288,7 +287,6 @@ export async function getServerSideProps({ req, res }: { req: any; res: any }) {
       props: {
         settings,
         profile,
-        shopping_jwt,
       },
     };
   } else {

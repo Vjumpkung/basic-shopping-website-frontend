@@ -32,13 +32,12 @@ import { toast } from "react-toastify";
 
 export default function CreateProduct({
   settings,
-  shopping_jwt,
 }: InferGetStaticPropsType<typeof getServerSideProps>) {
   const router = useRouter();
 
   const [resource, setResource] = useState<CldUploadWidgetInfo | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [token, setToken] = useState<string | null>(shopping_jwt);
+  const token = getCookie("shopping-jwt") as string | null;
   const [productName, setProductName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [choices, setChoices] = useState<choiceSchema[]>([]);
@@ -423,7 +422,6 @@ export async function getServerSideProps(ctx: any) {
     return {
       props: {
         settings,
-        shopping_jwt,
       },
     };
   } else {

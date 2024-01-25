@@ -11,11 +11,10 @@ import { toast } from "react-toastify";
 
 export default function ShopSettings({
   settings,
-  shopping_jwt,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [loadsettings, setLoadSettings] = useState<settingsSchema>(settings);
   const [previewlogo, setPreviewLogo] = useState<string>(settings.logo);
-  const [token, setToken] = useState<string | null>(shopping_jwt);
+  const token = getCookie("shopping-jwt") as string | null;
   const [isLogoHover, setIsLogoHover] = useState<boolean>(false);
   const [showLogoSettings, setShowLogoSettings] = useState<boolean>(false);
   const [configlogo, setConfigLogo] = useState<string>(settings.logo);
@@ -209,7 +208,6 @@ export async function getServerSideProps(ctx: any) {
     return {
       props: {
         settings,
-        shopping_jwt,
       },
     };
   } else {

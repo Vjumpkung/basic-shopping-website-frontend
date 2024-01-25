@@ -34,11 +34,10 @@ import { getProfile } from "@/utils/profile";
 export default function Product({
   product,
   settings,
-  shopping_jwt,
   profile,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const elementRef = useRef(null);
-  const [token, setToken] = useState<string | null>(shopping_jwt);
+  const token = getCookie("shopping-jwt") as string | null;
   const [price, SetPrice] = useState<number>(-1);
   const [quantity, SetQuantity] = useState<number>(0);
   const [selectedChoice, SetSelectedChoice] = useState<string>("");
@@ -403,7 +402,6 @@ export const getServerSideProps = async (context: any) => {
     props: {
       product,
       settings,
-      shopping_jwt,
       profile,
     },
   };

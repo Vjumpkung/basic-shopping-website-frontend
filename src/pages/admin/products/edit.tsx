@@ -40,7 +40,6 @@ import { toast } from "react-toastify";
 
 export default function EditProduct({
   settings,
-  shopping_jwt,
   product_res,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
@@ -51,7 +50,7 @@ export default function EditProduct({
 
   const [resource, setResource] = useState<CldUploadWidgetInfo | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [token, setToken] = useState<string | null>(shopping_jwt);
+  const token = getCookie("shopping-jwt") as string | null;
   const [productName, setProductName] = useState<string>(
     product?.name as string
   );
@@ -554,7 +553,6 @@ export async function getServerSideProps(ctx: any) {
     return {
       props: {
         settings,
-        shopping_jwt,
         product_res: product.data as ProductResponseDto | undefined,
       },
     };

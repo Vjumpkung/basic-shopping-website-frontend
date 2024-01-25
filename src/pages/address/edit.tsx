@@ -22,10 +22,9 @@ import { toast } from "react-toastify";
 export default function EditAddress({
   settings,
   profile,
-  shopping_jwt,
   address_res,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const token = shopping_jwt;
+  const token = getCookie("shopping-jwt") as string | null;
   const [address, setAddress] = useState<addressSchema | undefined>(
     address_res
   );
@@ -215,7 +214,6 @@ export async function getServerSideProps(ctx: any) {
       props: {
         settings,
         profile,
-        shopping_jwt,
         address_res: address.data as addressSchema,
       },
     };
