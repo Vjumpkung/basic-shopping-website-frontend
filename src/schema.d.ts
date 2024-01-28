@@ -99,6 +99,12 @@ export interface paths {
     /** Require ADMIN */
     post: operations["UsersController_createUser"];
   };
+  "/api/v1/users/{id}": {
+    /** Require ADMIN */
+    delete: operations["UsersController_deleteUser"];
+    /** Require USER */
+    patch: operations["UsersController_updateUserInfo"];
+  };
   "/api/v1/users/{id}/admin": {
     /** Require ADMIN */
     patch: operations["UsersController_updateUserRoleToAdmin"];
@@ -106,10 +112,6 @@ export interface paths {
   "/api/v1/users/{id}/user": {
     /** Require ADMIN */
     patch: operations["UsersController_updateUserRoleToUser"];
-  };
-  "/api/v1/users/{id}": {
-    /** Require ADMIN */
-    delete: operations["UsersController_deleteUser"];
   };
   "/api/v1/auth/register": {
     post: operations["AuthController_register"];
@@ -505,6 +507,18 @@ export interface components {
       /** @description Role */
       role: number;
     };
+    UpdateInfoDto: {
+      /** @description New Username */
+      newUsername?: string;
+      /** @description Old Password */
+      oldPassword: string;
+      /** @description New Password */
+      newPassword?: string;
+    };
+    ErrorDto: {
+      /** @description error message */
+      message: string;
+    };
     RegisterDto: {
       /** @description Username */
       username: string;
@@ -534,7 +548,7 @@ export interface components {
     };
     ProfileResponseDto: {
       /** @description id */
-      _id: string;
+      id: string;
       /** @description username */
       username: string;
       /**
@@ -1018,6 +1032,44 @@ export interface operations {
     };
   };
   /** Require ADMIN */
+  UsersController_deleteUser: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description delete user */
+      204: {
+        content: never;
+      };
+    };
+  };
+  /** Require USER */
+  UsersController_updateUserInfo: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateInfoDto"];
+      };
+    };
+    responses: {
+      /** @description update user info */
+      204: {
+        content: never;
+      };
+      400: {
+        content: {
+          "application/json": components["schemas"]["ErrorDto"];
+        };
+      };
+    };
+  };
+  /** Require ADMIN */
   UsersController_updateUserRoleToAdmin: {
     parameters: {
       path: {
@@ -1040,20 +1092,6 @@ export interface operations {
     };
     responses: {
       /** @description update user role to user */
-      204: {
-        content: never;
-      };
-    };
-  };
-  /** Require ADMIN */
-  UsersController_deleteUser: {
-    parameters: {
-      path: {
-        id: string;
-      };
-    };
-    responses: {
-      /** @description delete user */
       204: {
         content: never;
       };

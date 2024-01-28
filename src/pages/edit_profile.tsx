@@ -12,12 +12,14 @@ import { InferGetServerSidePropsType } from "next";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-export default function ManagePersonalAccount({
+//w-full lg:w-1/2 xl:w-1/3 mx-auto px-5
+
+export default function EditProfile({
   settings,
   profile,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const token = getCookie("shopping-jwt") as string | null;
-  const [username, setUsername] = useState<string>(profile.username);
+  const [username, setUsername] = useState<string>(profile?.username as string);
   const [editUsername, setEditUsername] = useState<boolean>(false);
   const [editPassword, setEditPassword] = useState<boolean>(false);
   const [oldPassword, setOldPassword] = useState<string>("");
@@ -47,6 +49,7 @@ export default function ManagePersonalAccount({
   const { login } = useLogin();
 
   function onUpdateUsername() {
+    setConfirmNewPasswordError("");
     setConfirmPasswordError("");
     setUpdateUsernameError("");
     client
@@ -56,7 +59,7 @@ export default function ManagePersonalAccount({
         },
         params: {
           path: {
-            id: profile.id,
+            id: profile?.id as string,
           },
         },
         body: {
@@ -93,7 +96,6 @@ export default function ManagePersonalAccount({
   function onUpdatePassword() {
     setOldPasswordError("");
     setNewPasswordError("");
-    setConfirmNewPasswordError("");
 
     if (newPassword !== confirmnewPassword) {
       setConfirmNewPasswordError("รหัสผ่านไม่ตรงกัน");
@@ -107,7 +109,7 @@ export default function ManagePersonalAccount({
         },
         params: {
           path: {
-            id: profile.id,
+            id: profile?.id as string,
           },
         },
         body: {
@@ -141,9 +143,9 @@ export default function ManagePersonalAccount({
   }
 
   return (
-    <AdminLayout settings={settings}>
+    <UserLayout settings={settings} profile={profile}>
       <title>{`${settings.name} - จัดการบัญชีส่วนตัว`}</title>
-      <main>
+      <main className="w-full lg:w-1/2 xl:w-1/3 mx-auto px-5">
         <div className="flex flex-row">
           <div>
             <p className="text-2xl font-semibold">จัดการบัญชีส่วนตัว</p>
@@ -212,7 +214,7 @@ export default function ManagePersonalAccount({
                 className="ml-2"
                 variant="light"
                 onClick={() => {
-                  setUsername(profile.username);
+                  setUsername(profile?.username as string);
                   setConfirmPasswordError("");
                   setConfirmPassword("");
                   setUpdateUsernameError("");
@@ -366,7 +368,7 @@ export default function ManagePersonalAccount({
           </div>
         ) : null}
       </main>
-    </AdminLayout>
+    </UserLayout>
   );
 }
 
@@ -383,12 +385,14 @@ export async function getServerSideProps(ctx: any) {
   const profile = await getProfile(shopping_jwt);
 
   if (shopping_jwt) {
-    if (profile?.role !== 100) {
+    if (profile?.role === 100) {
       return {
-        notFound: true,
+        redirect: {
+          destination: "/admin/manage_personal_account",
+          permanent: false,
+        },
       };
     }
-
     return {
       props: {
         settings,

@@ -95,6 +95,12 @@ export default function Header({
                     บัญชีของฉัน
                   </DropdownItem>
                   <DropdownItem
+                    key="edit-profile"
+                    onClick={() => router.push("/edit_profile")}
+                  >
+                    แก้ไขข้อมูลส่วนตัว
+                  </DropdownItem>
+                  <DropdownItem
                     key="address"
                     onClick={() => router.push("/address")}
                   >
