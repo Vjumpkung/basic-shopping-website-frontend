@@ -144,11 +144,11 @@ export default function EditProfile({
 
   return (
     <UserLayout settings={settings} profile={profile}>
-      <title>{`${settings.name} - จัดการบัญชีส่วนตัว`}</title>
+      <title>{`${settings.name} - แก้ไขข้อมูลส่วนตัว`}</title>
       <main className="w-full lg:w-1/2 xl:w-1/3 mx-auto px-5">
         <div className="flex flex-row">
           <div>
-            <p className="text-2xl font-semibold">จัดการบัญชีส่วนตัว</p>
+            <p className="text-2xl font-semibold">แก้ไขข้อมูลส่วนตัว</p>
           </div>
         </div>
         <div className="flex flex-col gap-2">
