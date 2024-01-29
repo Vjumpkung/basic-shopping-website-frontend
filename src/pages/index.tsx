@@ -112,15 +112,10 @@ export default function Home({
 
 export async function getServerSideProps({ req, res }: { req: any; res: any }) {
   const { data } = await client.GET("/api/v1/settings");
-
   const fetchProducts = await fetchProduct();
-
   const products = fetchProducts.data as ProductAllResponseDto[] | undefined;
-
   const settings = data as settingsSchema;
-
   const shopping_jwt = getCookie("shopping-jwt", { req, res }) as string | null;
-
   const profile = await getProfile(shopping_jwt);
 
   return {

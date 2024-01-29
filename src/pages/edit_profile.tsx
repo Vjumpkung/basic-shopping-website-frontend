@@ -12,8 +12,6 @@ import { InferGetServerSidePropsType } from "next";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-//w-full lg:w-1/2 xl:w-1/3 mx-auto px-5
-
 export default function EditProfile({
   settings,
   profile,

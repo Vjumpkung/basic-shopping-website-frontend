@@ -28,6 +28,7 @@ export default function SignIn({
   function onSubmit(e: React.FormEvent<HTMLButtonElement>) {
     setIsUsernameEmpty(false);
     setIsPasswordEmpty(false);
+    setUsernameErrorMessage("");
     setPasswordErrorMessage("");
     setIsExecute(true);
     e.preventDefault();
@@ -35,10 +36,14 @@ export default function SignIn({
     if (username === "") {
       setIsUsernameEmpty(true);
       setUsernameErrorMessage("กรุณากรอกชื่อผู้ใช้");
+      setIsExecute(false);
+      return;
     }
     if (password === "") {
       setIsPasswordEmpty(true);
       setPasswordErrorMessage("กรุณากรอกรหัสผ่าน");
+      setIsExecute(false);
+      return;
     }
 
     login(username, password)

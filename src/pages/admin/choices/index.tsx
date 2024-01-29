@@ -104,7 +104,9 @@ export async function getServerSideProps(ctx: any) {
     return {
       props: {
         settings,
-        choices_res: (choices_res.data as choiceSchema[] | undefined) || [],
+        choices_res: (
+          (choices_res.data as choiceSchema[] | undefined) || []
+        ).reverse(),
       },
     };
   } else {

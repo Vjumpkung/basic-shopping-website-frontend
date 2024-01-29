@@ -57,7 +57,9 @@ export default function EditProduct({
   const [description, setDescription] = useState<string>(
     product?.description as string
   );
-  const [choices, setChoices] = useState<choiceSchema[]>([]);
+  const [choices, setChoices] = useState<choiceSchema[]>(
+    product?.choices || []
+  );
   const [price, setPrice] = useState<number>(product?.price as number);
   const [images, setImages] = useState<string[]>(product?.image as string[]);
   const [isAvailable, setIsAvailable] = useState<boolean>(
@@ -309,7 +311,7 @@ export default function EditProduct({
               <ModalContent>
                 {(onClose) => (
                   <>
-                    <ModalBody>
+                    <ModalBody className="no-scrollbar">
                       <CheckboxGroup
                         label="ตัวเลือกทั้งหมด"
                         defaultValue={
@@ -549,11 +551,12 @@ export async function getServerSideProps(ctx: any) {
         },
       },
     });
+    const product_res = product.data as ProductResponseDto | undefined;
 
     return {
       props: {
         settings,
-        product_res: product.data as ProductResponseDto | undefined,
+        product_res,
       },
     };
   } else {

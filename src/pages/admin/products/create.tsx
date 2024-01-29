@@ -215,7 +215,7 @@ export default function CreateProduct({
               <ModalContent>
                 {(onClose) => (
                   <>
-                    <ModalBody>
+                    <ModalBody className="no-scrollbar">
                       <CheckboxGroup
                         label="ตัวเลือกทั้งหมด"
                         defaultValue={
