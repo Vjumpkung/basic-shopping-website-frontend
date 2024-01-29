@@ -47,7 +47,7 @@ export default function Header({
                 alt="logo"
                 width={32}
                 height={32}
-                className="mx-2"
+                className="mx-2 aspect-square object-cover"
               />
               <p className="text-inherit hidden sm:block">{settings?.name}</p>
             </NavbarBrand>

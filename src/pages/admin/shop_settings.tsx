@@ -85,7 +85,7 @@ export default function ShopSettings({
               <div
                 className={`${
                   isLogoHover ? "block" : "hidden"
-                } fixed z-50 font-bold self-center text-lg text-white bg-black rounded-lg px-2 py-1`}
+                } fixed z-50 self-center text-lg text-white bg-black rounded-lg px-2 py-1`}
               >
                 แก้ไขโลโก้
               </div>
@@ -93,15 +93,20 @@ export default function ShopSettings({
                 src={previewlogo}
                 width={120}
                 height={120}
-                className="aspect-square px-2 py-2"
+                className="aspect-square object-cover px-2 py-2"
               />
             </div>
           </button>
         </div>
         {showLogoSettings === false ? null : (
           <div className="my-auto flex-grow" aria-label="change logo">
-            URL
+            URL{" "}
+            <small>
+              คำแนะนำ logo ควรเป็นสี่เหลี่ยมจตุรัสและไม่มี Background
+            </small>
             <Input
+              className="py-2"
+              size="sm"
               value={configlogo}
               onChange={(e) => {
                 setPreviewLogo(e.target.value);
@@ -125,7 +130,10 @@ export default function ShopSettings({
                 <Button
                   className="mx-2"
                   variant="light"
-                  onClick={() => setShowLogoSettings(false)}
+                  onClick={() => {
+                    setShowLogoSettings(false);
+                    setPreviewLogo(loadsettings.logo);
+                  }}
                 >
                   ยกเลิก
                 </Button>

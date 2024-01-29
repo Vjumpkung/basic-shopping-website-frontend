@@ -26,7 +26,13 @@ export default function AdminHeader({
       <Link href="/" prefetch={false}>
         <div className="flex flex-row flex-wrap">
           <div className="mx-2 mt-2">
-            <Image src={settings.logo} width={32} height={32} alt="logo" />
+            <Image
+              src={settings.logo}
+              width={32}
+              height={32}
+              alt="logo"
+              className="aspect-square object-cover"
+            />
           </div>
           <div className="flex-grow mt-3 mr-4 truncate">
             <p className="text-xl">{settings.name}</p>

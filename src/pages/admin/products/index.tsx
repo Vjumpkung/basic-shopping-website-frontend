@@ -102,7 +102,7 @@ export default function AllProducts({
                       />
                     </TableCell>
                     <TableCell width={70}>
-                      {product.isAvailable ? "มีสินค้า" : "สินค้าหมด"}
+                      {product.isAvailable ? "มีสินค้า" : "หมด"}
                     </TableCell>
                     <TableCell width={70}>
                       {product.published_at !== null ? "เผยแพร่" : "แบบร่าง"}
