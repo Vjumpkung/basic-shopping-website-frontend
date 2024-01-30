@@ -47,11 +47,9 @@ export default function ProductForm({
   setIsPublish?: Dispatch<boolean>;
 }) {
   const router = useRouter();
-  const id = router.query.id;
   const [product, setProduct] = useState<ProductResponseDto | undefined>(
     product_res
   );
-
   const [resource, setResource] = useState<CldUploadWidgetInfo | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const token = getCookie("shopping-jwt") as string | null;
@@ -72,10 +70,8 @@ export default function ProductForm({
   const [published_at, setPublished_at] = useState<boolean>(
     product ? product.published_at !== null : false
   );
-
   const [newChoiceName, setNewChoiceName] = useState<string>("");
   const [newChoicePrice, setNewChoicePrice] = useState<number>(0);
-
   const [allChoices, setAllChoices] = useState<choiceSchema[] | undefined>([]);
 
   useEffect(() => {
@@ -131,83 +127,6 @@ export default function ProductForm({
       setIsPublish(published_at);
     }
   }, [published_at]);
-
-  function onSave() {
-    client.PATCH("/api/v1/products/{id}/update", {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-      params: {
-        path: {
-          id: id as string,
-        },
-      },
-      body: {
-        name: productName,
-        description: description,
-        choices: choices ? choices.map((choice) => choice._id) : undefined,
-        price: price,
-        image: images,
-      },
-    });
-    client.PATCH("/api/v1/products/{id}", {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-      params: {
-        query: {
-          available: isAvailable,
-        },
-        path: {
-          id: id as string,
-        },
-      },
-    });
-    if (published_at) {
-      client.PATCH("/api/v1/products/{id}/publish", {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-        params: {
-          path: {
-            id: id as string,
-          },
-        },
-      });
-    } else {
-      client.PATCH("/api/v1/products/{id}/draft", {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-        params: {
-          path: {
-            id: id as string,
-          },
-        },
-      });
-    }
-    toast.success("แก้ไขสินค้าเรียบร้อยแล้ว", { position: "bottom-right" });
-    setTimeout(() => {
-      router.push("/admin/products");
-    }, 500);
-  }
-
-  function onDelete() {
-    client.DELETE("/api/v1/products/{id}", {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-      params: {
-        path: {
-          id: id as string,
-        },
-      },
-    });
-    toast.warning("ลบสินค้าเรียบร้อยแล้ว", { position: "bottom-right" });
-    setTimeout(() => {
-      router.push("/admin/products");
-    }, 500);
-  }
 
   function onAddChoice() {
     if (newChoiceName === "") {
@@ -302,7 +221,7 @@ export default function ProductForm({
               scrollBehavior="inside"
             >
               <ModalContent>
-                {(onClose) => (
+                {() => (
                   <>
                     <ModalBody className="no-scrollbar">
                       <CheckboxGroup
