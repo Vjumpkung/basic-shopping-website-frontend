@@ -239,12 +239,12 @@ export interface components {
        * Format: date-time
        * @description product published date
        */
-      published_at: string;
+      published_at: string | null;
       /**
        * Format: date-time
        * @description product deleted date
        */
-      deleted_at: string;
+      deleted_at: string | null;
     };
     ProductCreateDto: {
       /** @description Product name */

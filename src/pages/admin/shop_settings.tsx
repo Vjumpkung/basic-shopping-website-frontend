@@ -64,11 +64,12 @@ export default function ShopSettings({
       <div className="w-full">
         <h1 className="text-2xl font-semibold">ตั้งค่าร้านค้า</h1>
       </div>
-      <h2 className="text-2xl mt-7">ตั้งค่าโลโก้ร้านค้า</h2>
-      <div className="flex flex-row flex-wrap">
+      <h2 className="text-xl mt-7">ตั้งค่าโลโก้ร้านค้า</h2>
+      <div className="flex flex-row flex-wrap max-h-[164px] h-full">
         <div className="mx-3 my-3 flex-none">
           <button
             onClick={() => {
+              setPreviewLogo(loadsettings.logo);
               setConfigLogo(loadsettings.logo);
               setShowLogoSettings(true);
             }}
@@ -100,10 +101,10 @@ export default function ShopSettings({
         </div>
         {showLogoSettings === false ? null : (
           <div className="my-auto flex-grow" aria-label="change logo">
-            URL{" "}
-            <small>
-              คำแนะนำ logo ควรเป็นสี่เหลี่ยมจตุรัสและไม่มี Background
-            </small>
+            URL
+            <p className="text-red-500 text-sm">
+              *รูปภาพควรเป็นสี่เหลี่ยมจตุรัส
+            </p>
             <Input
               className="py-2"
               size="sm"
@@ -113,7 +114,7 @@ export default function ShopSettings({
                 setConfigLogo(e.target.value);
               }}
             />
-            <div className="my-2 flex flex-row">
+            <div className="mt-2 flex flex-row">
               <div className="flex-auto self-start">
                 <CldUploadButton
                   className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-xl text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
@@ -152,7 +153,7 @@ export default function ShopSettings({
           </div>
         )}
       </div>
-      <h2 className="text-2xl mt-7">ตั้งค่าชื่อร้านค้า</h2>
+      <h2 className="text-xl mt-7">ตั้งค่าชื่อร้านค้า</h2>
       <div className="flex flex-row flex-wrap">
         <div className="flex-grow">
           <Input

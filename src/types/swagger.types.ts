@@ -15,3 +15,5 @@ export type CartResponseDto = components["schemas"]["CartResponseDto"];
 export type addressSchema = components["schemas"]["addressSchema"];
 export type userSchama = components["schemas"]["userSchema"];
 export type UserCreateDto = components["schemas"]["UserCreateDto"];
+export type ProductUpdateDto = components["schemas"]["ProductUpdateDto"];
+export type ProductCreateDto = components["schemas"]["ProductCreateDto"];

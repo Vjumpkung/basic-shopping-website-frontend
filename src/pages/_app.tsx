@@ -1,3 +1,4 @@
+import { AdminMenuContext } from "@/components/AdminLayout";
 import "@/styles/globals.css";
 import { NextUIProvider } from "@nextui-org/react";
 import {
@@ -18,7 +19,8 @@ const kanit = Kanit({
   subsets: ["latin", "thai"],
 });
 
-export default function MyApp({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps }: AppProps) {
+  const [isOpen, setIsOpen] = useState<boolean>(true);
   const [queryClient] = useState(() => new QueryClient());
   const router = useRouter();
 
@@ -32,10 +34,12 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             shallowRouting
           />
           <NextUIProvider navigate={router.push}>
-            <main className={kanit.className}>
-              <ToastContainer />
-              <Component {...pageProps} />
-            </main>
+            <AdminMenuContext.Provider value={{ isOpen, setIsOpen }}>
+              <main className={kanit.className}>
+                <ToastContainer />
+                <Component {...pageProps} />
+              </main>
+            </AdminMenuContext.Provider>
           </NextUIProvider>
         </HydrationBoundary>
       </QueryClientProvider>

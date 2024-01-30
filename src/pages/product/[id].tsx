@@ -132,7 +132,7 @@ export default function Product({
             })}
         </Breadcrumbs>
         <div className="grid xl:grid-cols-2">
-          <div className="px-3 py-4 mx-auto grid">
+          <div className="px-3 py-4 mx-auto max-w-[480px]">
             <div className="mx-auto overflow-hidden relative aspect-square border border-gray-200">
               <LightBox
                 images={product.image}
