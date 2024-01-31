@@ -30,8 +30,9 @@ import { CldUploadButton, CldUploadWidgetInfo } from "next-cloudinary";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { Dispatch, useEffect, useState } from "react";
-import { TrashFill } from "react-bootstrap-icons";
+import { PencilSquare, TrashFill } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
+import validator from "validator";
 
 export default function ProductForm({
   product_res,
@@ -46,7 +47,6 @@ export default function ProductForm({
   setAvailable?: Dispatch<boolean>;
   setIsPublish?: Dispatch<boolean>;
 }) {
-  const router = useRouter();
   const [product, setProduct] = useState<ProductResponseDto | undefined>(
     product_res
   );
@@ -54,25 +54,38 @@ export default function ProductForm({
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const token = getCookie("shopping-jwt") as string | null;
   const [productName, setProductName] = useState<string>(
-    product ? product.name : ""
+    product_res ? product_res.name : ""
   );
   const [description, setDescription] = useState<string>(
-    product ? product.description : ""
+    product_res ? product_res.description : ""
   );
   const [choices, setChoices] = useState<choiceSchema[]>(
-    product ? product.choices : []
+    product_res ? product_res.choices : []
   );
-  const [price, setPrice] = useState<number>(product ? product.price : 0);
-  const [images, setImages] = useState<string[]>(product ? product.image : []);
+  const [price, setPrice] = useState<number>(
+    product_res ? product_res.price : 0
+  );
+  const [images, setImages] = useState<string[]>(
+    product_res ? product_res.image : []
+  );
   const [isAvailable, setIsAvailable] = useState<boolean>(
-    product ? product.isAvailable : false
+    product_res ? product_res.isAvailable : false
   );
   const [published_at, setPublished_at] = useState<boolean>(
-    product ? product.published_at !== null : false
+    product_res ? product_res.published_at !== null : false
   );
   const [newChoiceName, setNewChoiceName] = useState<string>("");
   const [newChoicePrice, setNewChoicePrice] = useState<number>(0);
   const [allChoices, setAllChoices] = useState<choiceSchema[] | undefined>([]);
+  const [editChoice, setEditChoice] = useState<string | undefined>("");
+  const [editChoiceName, setEditChoiceName] = useState<string | undefined>("");
+  const [editChoicePrice, setEditChoicePrice] = useState<number | undefined>(0);
+  const [choice_trigger, setChoice_trigger] = useState<boolean>(false);
+
+  useEffect(() => {
+    setChoices(product?.choices as choiceSchema[]);
+    setEditChoice("");
+  }, [choice_trigger]);
 
   useEffect(() => {
     client
@@ -99,7 +112,7 @@ export default function ProductForm({
       let update_product: ProductUpdateDto = {
         name: productName,
         description: description,
-        choices: choices.map((choice) => choice._id),
+        choices: choices?.map((choice) => choice._id),
         price: price,
         image: images,
       };
@@ -108,7 +121,7 @@ export default function ProductForm({
       let create_product: ProductCreateDto = {
         name: productName,
         description: description,
-        choices: choices.map((choice) => choice._id),
+        choices: choices?.map((choice) => choice._id),
         price: price,
         image: images,
       };
@@ -146,12 +159,51 @@ export default function ProductForm({
       })
       .then((res) => {
         if (res.data !== undefined) {
-          setChoices([...choices, res.data]);
+          if (choices) {
+            setChoices([...choices, res.data]);
+          } else {
+            setChoices([res.data]);
+          }
         }
       });
     toast.success("เพิ่มตัวเลือกเรียบร้อยแล้ว", { position: "bottom-right" });
     setNewChoiceName("");
     setNewChoicePrice(0);
+  }
+
+  function onSave() {
+    client
+      .PATCH("/api/v1/choices/{id}", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          path: {
+            id: editChoice as string,
+          },
+        },
+        body: {
+          name: editChoiceName,
+          price: editChoicePrice,
+        },
+      })
+      .then(() => {
+        toast.success("แก้ไขตัวเลือกเรียบร้อยแล้ว", {
+          position: "bottom-right",
+        });
+        client
+          .GET("/api/v1/products/{id}", {
+            params: {
+              path: {
+                id: product_res?._id as string,
+              },
+            },
+          })
+          .then((res) => {
+            setProduct(res.data);
+            setChoice_trigger(!choice_trigger);
+          });
+      });
   }
 
   return (
@@ -237,7 +289,11 @@ export default function ProductForm({
                               value={choice._id}
                               onChange={(e) => {
                                 if (e.target.checked) {
-                                  setChoices([...choices, choice]);
+                                  if (choices) {
+                                    setChoices([...choices, choice]);
+                                  } else {
+                                    setChoices([choice]);
+                                  }
                                 } else {
                                   setChoices(
                                     choices.filter((c) => c._id !== choice._id)
@@ -262,16 +318,91 @@ export default function ProductForm({
             <TableHeader>
               <TableColumn>ชื่อตัวเลือก</TableColumn>
               <TableColumn>ราคา (บาท)</TableColumn>
+              <TableColumn>แก้ไข</TableColumn>
             </TableHeader>
             <TableBody>
               {choices?.map((choice) => {
                 return (
                   <TableRow key={choice._id}>
-                    <TableCell className="w-full">
-                      <code>{choice.name}</code>
+                    <TableCell>
+                      <code>
+                        <input
+                          className={`w-full ${
+                            editChoice === choice._id
+                              ? "bg-gray-100"
+                              : "bg-white"
+                          } px-2 py-2 rounded-md`}
+                          type="text"
+                          value={
+                            editChoice === choice._id
+                              ? editChoiceName
+                              : choice.name
+                          }
+                          onChange={(e) => {
+                            setEditChoiceName(e.target.value);
+                          }}
+                          disabled={editChoice !== choice._id}
+                        />
+                      </code>
                     </TableCell>
                     <TableCell>
-                      <code>{choice.price}</code>
+                      <code>
+                        <input
+                          className={`w-full ${
+                            editChoice === choice._id
+                              ? "bg-gray-100"
+                              : "bg-white"
+                          } px-2 py-2 rounded-md`}
+                          type="number"
+                          value={
+                            editChoice === choice._id
+                              ? editChoicePrice?.toString()
+                              : choice.price.toString()
+                          }
+                          onChange={(e) => {
+                            setEditChoicePrice(+e.target.value);
+                          }}
+                          disabled={editChoice !== choice._id}
+                        />
+                      </code>
+                    </TableCell>
+                    <TableCell width={170}>
+                      <div className="flex flex-row justify-center">
+                        {editChoice === choice._id ? (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="light"
+                              color="danger"
+                              onClick={() => setEditChoice("")}
+                            >
+                              ยกเลิก
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="flat"
+                              color="primary"
+                              onClick={() => {
+                                onSave();
+                              }}
+                            >
+                              บันทึก
+                            </Button>
+                          </div>
+                        ) : (
+                          <div>
+                            <button
+                              onClick={() => {
+                                setEditChoice(choice._id);
+                                setEditChoiceName(choice.name);
+                                setEditChoicePrice(choice.price);
+                              }}
+                            >
+                              <PencilSquare />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -299,7 +430,7 @@ export default function ProductForm({
             label={<p>ราคา</p>}
           />
         </div>
-        <div>
+        <div className="self-end">
           <Button color="primary" size="sm" onClick={() => onAddChoice()}>
             เพิ่ม
           </Button>
@@ -311,7 +442,7 @@ export default function ProductForm({
         </div>
         <div className="flex flex-row gap-2">
           {images?.map((image) => {
-            if (image === "") return <></>;
+            if (!validator.isURL(image)) return <></>;
 
             return (
               <div key={image}>
@@ -333,6 +464,7 @@ export default function ProductForm({
                 <div key={index} className="flex flex-row pb-3 gap-3">
                   <div className="flex-grow">
                     <Input
+                      placeholder="URL รูปภาพ"
                       type="text"
                       value={input}
                       onChange={(e) => {
@@ -346,6 +478,7 @@ export default function ProductForm({
                   <div className="flex-none self-center">
                     <Button
                       color="danger"
+                      variant="light"
                       onClick={() => {
                         const newImages = [...images];
                         newImages.splice(index, 1);
@@ -360,30 +493,33 @@ export default function ProductForm({
               );
             })}
           </form>
-          <Button
-            onClick={() => {
-              setImages([...images, ""]);
-            }}
-          >
-            เพิ่มรูปภาพ
-          </Button>
+          <div className="flex flex-row justify-end">
+            <Button
+              onClick={() => {
+                setImages([...images, ""]);
+              }}
+              variant="light"
+            >
+              เพิ่ม URL รูปภาพ
+            </Button>
 
-          <CldUploadButton
-            className="ml-2 z-0 group relative inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 px-unit-4 min-w-unit-20 h-unit-10 text-small gap-unit-2 rounded-medium [&>svg]:max-w-[theme(spacing.unit-8)] data-[pressed=true]:scale-[0.97] transition-transform-colors-opacity motion-reduce:transition-none bg-default text-default-foreground data-[hover=true]:opacity-hover"
-            uploadPreset="n1wehvy6"
-            onUpload={(result, widget) => {
-              setResource(result?.info as CldUploadWidgetInfo);
-              widget.close();
-            }}
-          >
-            อัพโหลดรูปภาพ
-          </CldUploadButton>
+            <CldUploadButton
+              className="ml-2 z-0 group relative inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 px-unit-4 min-w-unit-20 h-unit-10 text-small gap-unit-2 rounded-medium [&>svg]:max-w-[theme(spacing.unit-8)] data-[pressed=true]:scale-[0.97] transition-transform-colors-opacity motion-reduce:transition-none bg-default text-default-foreground data-[hover=true]:opacity-hover"
+              uploadPreset="n1wehvy6"
+              onUpload={(result, widget) => {
+                setResource(result?.info as CldUploadWidgetInfo);
+                widget.close();
+              }}
+            >
+              อัพโหลดรูปภาพ
+            </CldUploadButton>
+          </div>
         </div>
       </div>
       <div>
         <p className="text-lg mt-2">สถานะ</p>
       </div>
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row gap-2 justify-evenly max-w-[480px] mx-auto">
         <div className="flex flex-row">
           <span className={`${published_at ? "text-gray-400" : "text-black"}`}>
             แบบร่าง

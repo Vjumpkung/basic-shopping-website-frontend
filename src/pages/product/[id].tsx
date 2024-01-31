@@ -30,12 +30,15 @@ import "highlight.js/styles/github.css";
 import emoji from "remark-emoji";
 import { getCookie } from "cookies-next";
 import { getProfile } from "@/utils/profile";
+import useWindowDimensions from "@/utils/checkviewport";
+import { isURL } from "validator";
 
 export default function Product({
   product,
   settings,
   profile,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const { width, height } = useWindowDimensions();
   const elementRef = useRef(null);
   const token = getCookie("shopping-jwt") as string | null;
   const [price, SetPrice] = useState<number>(-1);
@@ -141,7 +144,7 @@ export default function Product({
                 stateChanger={setOpenLightBox}
               />
               {product.image.map((image) => {
-                if (image === "") {
+                if (isURL(image) === false) {
                   return null;
                 }
 
@@ -154,7 +157,11 @@ export default function Product({
                   >
                     <button
                       key={image}
-                      onClick={() => setOpenLightBox(!openLightBox)}
+                      onClick={() => {
+                        if (width >= 1280) {
+                          setOpenLightBox(!openLightBox);
+                        }
+                      }}
                     >
                       <Image
                         className="object-cover my-auto h-full aspect-square"
@@ -186,7 +193,7 @@ export default function Product({
                 ref={elementRef}
               >
                 {product.image.map((image) => {
-                  if (image === "") {
+                  if (isURL(image) === false) {
                     return null;
                   }
 
@@ -194,7 +201,11 @@ export default function Product({
                     <div className="flex-none aspect-square" key={image}>
                       <button
                         onMouseOver={() => SetSelectedImage(image)}
-                        onClick={() => setOpenLightBox(!openLightBox)}
+                        onClick={() => {
+                          if (width >= 1280) {
+                            setOpenLightBox(!openLightBox);
+                          }
+                        }}
                       >
                         <Image
                           className={`border border-gray-300 object-cover w-20 h-20 ${
