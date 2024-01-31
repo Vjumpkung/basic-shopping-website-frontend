@@ -3,6 +3,8 @@ import LightBox from "@/components/LightBox";
 import ShoppingCartIcon from "@/components/ShoppingCart";
 import UserLayout from "@/components/UserLayout";
 import { ProductResponseDto, settingsSchema } from "@/types/swagger.types";
+import useWindowDimensions from "@/utils/checkviewport";
+import { getProfile } from "@/utils/profile";
 import {
   BreadcrumbItem,
   Breadcrumbs,
@@ -11,34 +13,32 @@ import {
   Image,
   Textarea,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next";
 import "github-markdown-css/github-markdown-light.css";
+import "highlight.js/styles/github.css";
 import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { CaretLeftFill, CaretRightFill } from "react-bootstrap-icons";
 import Markdown from "react-markdown";
 import { toast } from "react-toastify";
+import rehypeHighlight from "rehype-highlight";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
+import emoji from "remark-emoji";
 import remarkGfm from "remark-gfm";
 import remarkToc from "remark-toc";
-import { calculatedChoicePrice, priceRange } from "..";
-import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github.css";
-import emoji from "remark-emoji";
-import { getCookie } from "cookies-next";
-import { getProfile } from "@/utils/profile";
-import useWindowDimensions from "@/utils/checkviewport";
 import { isURL } from "validator";
+import { calculatedChoicePrice, priceRange } from "..";
 
 export default function Product({
   product,
   settings,
   profile,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { width, height } = useWindowDimensions();
+  let { width, height } = useWindowDimensions();
   const elementRef = useRef(null);
   const token = getCookie("shopping-jwt") as string | null;
   const [price, SetPrice] = useState<number>(-1);

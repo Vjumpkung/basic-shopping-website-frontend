@@ -55,6 +55,7 @@ export default function ShopSettings({
   }
 
   useEffect(() => {
+    setPreviewLogo(resource ? resource?.secure_url : loadsettings.logo);
     setConfigLogo(resource?.secure_url as string);
   }, [resource]);
 
