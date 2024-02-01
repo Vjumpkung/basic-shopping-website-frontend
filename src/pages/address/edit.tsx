@@ -1,6 +1,7 @@
 import client from "@/api/client";
 import UserLayout from "@/components/UserLayout";
 import { addressSchema, settingsSchema } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import {
   Button,
@@ -87,7 +88,7 @@ export default function EditAddress({
     <UserLayout settings={settings} profile={profile}>
       <title>{`${settings?.name} - แก้ไขที่อยู่`}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
-        <h2 className="text-3xl">แก้ไขที่อยู่</h2>
+        <h2 className="text-2xl font-bold">แก้ไขที่อยู่</h2>
         <div className="flex flex-col justify-start">
           <div className="flex-grow max-w-sm my-2">
             <p className="text-2xl pb-1">ชื่อผู้รับ</p>
@@ -126,7 +127,7 @@ export default function EditAddress({
           </div>
           <div className="self-end flex-grow max-w-sm my-2">
             <Button color="danger" onClick={onOpen}>
-              ลบที่อยู๋
+              ลบที่อยู่
             </Button>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
               <ModalContent>
@@ -178,6 +179,9 @@ export default function EditAddress({
 }
 
 export async function getServerSideProps(ctx: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
   const { data } = await client.GET("/api/v1/settings");
 
   if (ctx.query.id === undefined) {

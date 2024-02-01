@@ -2,10 +2,12 @@ import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import ProductForm from "@/components/ProductForm";
 import { ProductCreateDto, settingsSchema } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import { Button } from "@nextui-org/react";
 import { getCookie } from "cookies-next";
 import { InferGetStaticPropsType } from "next";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -54,10 +56,12 @@ export default function CreateProduct({
 
   return (
     <AdminLayout settings={settings}>
-      <title>{`${settings.name} - เพิ่มสินค้า`}</title>
+      <Head>
+        <title>{`${settings.name} - เพิ่มสินค้า`}</title>
+      </Head>
       <div className="flex flex-row">
         <div className="flex-grow">
-          <h1 className="text-3xl">เพิ่มสินค้า</h1>
+          <h1 className="text-2xl font-bold">เพิ่มสินค้า</h1>
         </div>
         <div className="flex-none self-end">
           <Button
@@ -87,6 +91,9 @@ export default function CreateProduct({
 }
 
 export async function getServerSideProps(ctx: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

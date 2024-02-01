@@ -1,6 +1,7 @@
 import client from "@/api/client";
 import UserLayout from "@/components/UserLayout";
 import { addressSchema, settingsSchema } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import {
   Button,
@@ -55,7 +56,7 @@ export default function ManageAddress({
     <UserLayout settings={settings} profile={profile}>
       <title>{`${settings?.name} - ที่อยู่ของฉัน`}</title>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
-        <h2 className="text-3xl">ที่อยู่ของฉัน</h2>
+        <h2 className="text-2xl font-bold">ที่อยู่ของฉัน</h2>
         {addresses?.map((address) => {
           return (
             <div key={address._id} className="py-2">
@@ -111,6 +112,9 @@ export default function ManageAddress({
 }
 
 export async function getServerSideProps({ req, res }: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

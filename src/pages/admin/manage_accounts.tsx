@@ -7,6 +7,7 @@ import {
   settingsSchema,
   userSchama,
 } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import {
   Button,
@@ -357,6 +358,10 @@ export default function ManageAccounts({
                           onOpenChange={(open) => {
                             setIsEditRoleOpen(open);
                           }}
+                          onClose={() => {
+                            setSelectedUser("");
+                            setIsEditRoleOpen(false);
+                          }}
                         >
                           <PopoverTrigger>
                             <button
@@ -466,6 +471,10 @@ export default function ManageAccounts({
 }
 
 export async function getServerSideProps(ctx: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
+
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

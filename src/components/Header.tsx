@@ -9,6 +9,7 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
+  NavbarMenu,
 } from "@nextui-org/react";
 import { deleteCookie } from "cookies-next";
 import Image from "next/image";
@@ -33,7 +34,7 @@ export default function Header({
     toast.info("คุณได้ออกจากระบบแล้ว", { position: "bottom-right" });
 
   return (
-    <header>
+    <>
       <Navbar>
         <NavbarContent>
           <Link href="/">
@@ -145,6 +146,6 @@ export default function Header({
           </NavbarItem>
         </NavbarContent>
       </Navbar>
-    </header>
+    </>
   );
 }

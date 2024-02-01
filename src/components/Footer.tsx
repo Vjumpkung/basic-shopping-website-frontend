@@ -10,8 +10,8 @@ export default function Footer() {
   )
     return null;
   return (
-    <footer>
-      <div className="mt-5 mb-2">
+    <footer className="mt-5 mb-2">
+      <div>
         <p className="text-center font-semibold text-black">
           Made with ❤️ by vjumpkung
         </p>

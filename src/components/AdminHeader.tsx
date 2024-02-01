@@ -71,7 +71,7 @@ export default function AdminHeader({
             className={`${
               adminPath === "products" && " bg-gray-200 text-black"
             }`}
-            startContent={<Bag className="mb-1" />}
+            startContent={<Bag />}
             key="products"
           >
             จัดการสินค้า
@@ -80,14 +80,14 @@ export default function AdminHeader({
             className={`${
               adminPath === "choices" && " bg-gray-200 text-black"
             }`}
-            startContent={<CheckCircle className="mb-1" />}
+            startContent={<CheckCircle />}
             key="choices"
           >
             จัดการตัวเลือกสินค้า
           </ListboxItem>
           <ListboxItem
             className={`${adminPath === "orders" && " bg-gray-200 text-black"}`}
-            startContent={<Shop className="mb-1" />}
+            startContent={<Shop />}
             key="orders"
           >
             จัดการออเดอร์
@@ -96,7 +96,7 @@ export default function AdminHeader({
             className={`${
               adminPath === "manage_accounts" && " bg-gray-200 text-black"
             }`}
-            startContent={<FileEarmarkPerson className="mb-1" />}
+            startContent={<FileEarmarkPerson />}
             key="manage_accounts"
           >
             จัดการบัญชีทั้งหมด
@@ -106,7 +106,7 @@ export default function AdminHeader({
               adminPath === "manage_personal_account" &&
               " bg-gray-200 text-black"
             }`}
-            startContent={<Person className="mb-1" />}
+            startContent={<Person />}
             key="manage_personal_account"
           >
             จัดการบัญชีส่วนตัว
@@ -115,14 +115,14 @@ export default function AdminHeader({
             className={`${
               adminPath === "shop_settings" && " bg-gray-200 text-black"
             }`}
-            startContent={<Gear className="mb-1" />}
+            startContent={<Gear />}
             key="shop_settings"
           >
             ตั้งค่าร้านค้า
           </ListboxItem>
           <ListboxItem
             className={`${adminPath === "logout" && " bg-gray-200 text-black"}`}
-            startContent={<BoxArrowRight className="mb-1" />}
+            startContent={<BoxArrowRight />}
             key="logout"
           >
             ออกจากระบบ
@@ -163,7 +163,7 @@ export default function AdminHeader({
             className={`${
               adminPath === "products" && " bg-gray-200 text-black"
             }`}
-            startContent={<Bag className="mb-1" />}
+            startContent={<Bag />}
             key="products"
             title="products"
           />
@@ -171,13 +171,13 @@ export default function AdminHeader({
             className={`${
               adminPath === "choices" && " bg-gray-200 text-black"
             }`}
-            startContent={<CheckCircle className="mb-1" />}
+            startContent={<CheckCircle />}
             key="choices"
             title="choices"
           />
           <ListboxItem
             className={`${adminPath === "orders" && " bg-gray-200 text-black"}`}
-            startContent={<Shop className="mb-1" />}
+            startContent={<Shop />}
             key="orders"
             title="orders"
           />
@@ -185,7 +185,7 @@ export default function AdminHeader({
             className={`${
               adminPath === "manage_accounts" && " bg-gray-200 text-black"
             }`}
-            startContent={<FileEarmarkPerson className="mb-1" />}
+            startContent={<FileEarmarkPerson />}
             key="manage_accounts"
             title="manage_accounts"
           />
@@ -194,7 +194,7 @@ export default function AdminHeader({
               adminPath === "manage_personal_account" &&
               " bg-gray-200 text-black"
             }`}
-            startContent={<Person className="mb-1" />}
+            startContent={<Person />}
             key="manage_personal_account"
             title="manage_personal_account"
           />
@@ -202,13 +202,13 @@ export default function AdminHeader({
             className={`${
               adminPath === "shop_settings" && " bg-gray-200 text-black"
             }`}
-            startContent={<Gear className="mb-1" />}
+            startContent={<Gear />}
             key="shop_settings"
             title="shop_settings"
           />
           <ListboxItem
             className={`${adminPath === "logout" && " bg-gray-200 text-black"}`}
-            startContent={<BoxArrowRight className="mb-1" />}
+            startContent={<BoxArrowRight />}
             key="logout"
             title="logout"
           />

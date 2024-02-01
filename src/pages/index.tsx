@@ -1,15 +1,18 @@
 import client from "@/api/client";
 import UserLayout from "@/components/UserLayout";
+import { placeholder } from "@/const/placeholder";
 import {
   ProductAllResponseDto,
   choiceSchema,
   settingsSchema,
 } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Image } from "@nextui-org/react";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 import NextImage from "next/image";
 import Link from "next/link";
 
@@ -51,7 +54,9 @@ export default function Home({
   return (
     <UserLayout settings={settings} profile={profile}>
       <main>
-        <title>{`${settings?.name} - หน้าแรก`}</title>
+        <Head>
+          <title>{`${settings?.name} - หน้าแรก`}</title>
+        </Head>
         <div className="w-5/6 mx-auto">
           <div className="flex flex-wrap justify-center">
             {products?.map((product) => {
@@ -68,22 +73,25 @@ export default function Home({
                           {product.image.length > 0 ? (
                             <div className="mx-auto">
                               <Image
-                                className="object-cover h-52"
+                                className="object-scale-down max-h-52 h-full aspect-square"
                                 as={NextImage}
                                 radius="none"
                                 src={product.image[0]}
-                                alt={"just a image"}
+                                alt={"รูปภาพนั่นแหล่ะ"}
                                 width={200}
                                 height={200}
                               />
                             </div>
                           ) : (
-                            <Image
-                              src={`https://picsum.photos/seed/${Math.random()}/200/200`}
-                              width={200}
-                              height={200}
-                              alt={"just a image"}
-                            />
+                            <div className="mx-auto">
+                              <Image
+                                className="object-scale-down max-h-52 h-full aspect-square"
+                                src={placeholder}
+                                width={200}
+                                height={200}
+                                alt={"รูปภาพนั่นแหล่ะ"}
+                              />
+                            </div>
                           )}
                         </CardHeader>
                         <CardBody className="overflow-hidden py-2">
@@ -111,6 +119,10 @@ export default function Home({
 }
 
 export async function getServerSideProps({ req, res }: { req: any; res: any }) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
+
   const { data } = await client.GET("/api/v1/settings");
   const fetchProducts = await fetchProduct();
   const products = fetchProducts.data as ProductAllResponseDto[] | undefined;

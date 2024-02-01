@@ -1,6 +1,8 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
+import { placeholder } from "@/const/placeholder";
 import { ProductAllResponseDto, settingsSchema } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import {
   Button,
@@ -14,10 +16,12 @@ import {
 } from "@nextui-org/react";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { PencilSquare } from "react-bootstrap-icons";
+import isURL from "validator/lib/isURL";
 
 export default function AllProducts({
   settings,
@@ -28,7 +32,9 @@ export default function AllProducts({
 
   return (
     <AdminLayout settings={settings}>
-      <title>{`${settings.name} - สินค้าทั้งหมด`}</title>
+      <Head>
+        <title>{`${settings.name} - สินค้าทั้งหมด`}</title>
+      </Head>
       <div className="flex flex-row">
         <div>
           <h1 className="text-2xl font-semibold">สินค้าทั้งหมด</h1>
@@ -94,7 +100,13 @@ export default function AllProducts({
                     </TableCell>
                     <TableCell width={80}>
                       <Image
-                        src={product.image[0]}
+                        src={
+                          product.image.length > 0
+                            ? isURL(product.image[0])
+                              ? product.image[0]
+                              : placeholder
+                            : placeholder
+                        }
                         alt={product.name}
                         width={80}
                         height={80}
@@ -127,6 +139,9 @@ export default function AllProducts({
 }
 
 export async function getServerSideProps(ctx: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

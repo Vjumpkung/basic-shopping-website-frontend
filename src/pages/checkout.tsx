@@ -5,6 +5,7 @@ import {
   addressSchema,
   settingsSchema,
 } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import {
   Button,
@@ -24,6 +25,7 @@ import {
 } from "@nextui-org/react";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -129,7 +131,9 @@ export default function Checkout({
 
   return (
     <UserLayout settings={settings} profile={profile}>
-      <title>{settings?.name + " - ชำระเงิน"}</title>
+      <Head>
+        <title>{settings?.name + " - ชำระเงิน"}</title>
+      </Head>
       <div className="container lg:w-1/2 w-full mx-auto px-5">
         <h2 className="text-3xl">ชำระเงิน</h2>
         <div className="grid grid-cols-1">
@@ -144,7 +148,7 @@ export default function Checkout({
                           src={item.product.image[0]}
                           width={80}
                           height={80}
-                          alt={"just a image"}
+                          alt={"รูปภาพนั่นแหล่ะ"}
                           className="object-cover h-auto"
                         />
                       </div>
@@ -274,6 +278,10 @@ export default function Checkout({
 }
 
 export async function getServerSideProps({ req, res }: { req: any; res: any }) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
+
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

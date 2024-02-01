@@ -397,7 +397,7 @@ export default function ProductForm({
                       />
                     </TableCell>
                     <TableCell width={170}>
-                      <div className="flex flex-row justify-center">
+                      <div className="flex flex-row">
                         {editChoice === choice._id ? (
                           <div className="flex gap-2">
                             <Button
@@ -436,15 +436,17 @@ export default function ProductForm({
                     </TableCell>
                     <TableCell width={50}>
                       <div className="flex justify-center">
-                        <button
-                          onClick={() => {
-                            setChoices(
-                              choices.filter((c) => c._id !== choice._id)
-                            );
-                          }}
-                        >
-                          <TrashFill className="text-lg transition text-danger-300 hover:text-danger-500" />
-                        </button>
+                        <div className="self-center">
+                          <button
+                            onClick={() => {
+                              setChoices(
+                                choices.filter((c) => c._id !== choice._id)
+                              );
+                            }}
+                          >
+                            <TrashFill className="text-lg transition text-danger-300 hover:text-danger-500" />
+                          </button>
+                        </div>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -582,6 +584,7 @@ export default function ProductForm({
             แบบร่าง
           </span>
           <Switch
+            color="default"
             isSelected={published_at}
             className="ml-2"
             onChange={(e) => {
@@ -603,6 +606,7 @@ export default function ProductForm({
               สินค้าหมด
             </span>
             <Switch
+              color="success"
               isSelected={isAvailable}
               className="ml-2"
               onChange={(e) => {

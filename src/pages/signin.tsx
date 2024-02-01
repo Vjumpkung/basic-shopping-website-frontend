@@ -2,10 +2,12 @@ import client from "@/api/client";
 import { EyeFilledIcon } from "@/components/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "@/components/EyeSlashFilledIcon";
 import { settingsSchema } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { useLogin } from "@/utils/login";
 import { Button, Image, Input } from "@nextui-org/react";
 import { getCookie, setCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -80,7 +82,9 @@ export default function SignIn({
     <main
       className={`fixed top-0 bottom-0 right-0 left-0 flex min-h-screen flex-col items-center justify-between`}
     >
-      <title>{settings?.name + " - ลงชื่อเข้าใช้"}</title>
+      <Head>
+        <title>{settings?.name + " - ลงชื่อเข้าใช้"}</title>
+      </Head>
       <form className="flex flex-col items-center justify-center gap-4 w-full max-w-xl m-auto px-2">
         <Link href="/">
           <Image
@@ -148,6 +152,10 @@ export default function SignIn({
 }
 
 export async function getServerSideProps({ req, res }: { req: any; res: any }) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
+
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

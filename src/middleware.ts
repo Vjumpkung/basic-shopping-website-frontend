@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
   const res = NextResponse.next();
+
   if (hasCookie("shopping-jwt", { req, res })) {
     setCookie("shopping-jwt", getCookie("shopping-jwt", { req, res }), {
       req,
@@ -11,6 +12,5 @@ export function middleware(req: NextRequest) {
       maxAge: 60 * 60 * 24 * 30,
     });
   }
-
   return res;
 }

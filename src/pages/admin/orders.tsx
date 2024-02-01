@@ -1,16 +1,20 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { settingsSchema } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 
 export default function ManageOrders({
   settings,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <AdminLayout settings={settings}>
-      <title>{`${settings.name} - จัดการออเดอร์ทั้งหมด`}</title>
+      <Head>
+        <title>{`${settings.name} - จัดการออเดอร์ทั้งหมด`}</title>
+      </Head>
       <main>
         <div className="flex flex-row">
           <div>
@@ -26,6 +30,9 @@ export default function ManageOrders({
 }
 
 export async function getServerSideProps(ctx: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

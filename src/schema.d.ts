@@ -148,9 +148,13 @@ export interface paths {
     /** Require USER */
     post: operations["SlipsController_createSlip"];
   };
-  "/api/v1/slips/{id}": {
+  "/api/v1/slips/user": {
     /** Require USER */
     get: operations["SlipsController_getSlipById"];
+  };
+  "/api/v1/slips/{id}": {
+    /** Require ADMIN */
+    delete: operations["SlipsController_deleteSlip"];
   };
   "/api/v1/addresses": {
     /** Requier USER */
@@ -176,6 +180,10 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
+    PingResponseDto: {
+      /** @example Pong! */
+      msg: string;
+    };
     choiceSchema: {
       /** @description choice id */
       _id: string;
@@ -599,6 +607,11 @@ export interface components {
        * @description transfer date
        */
       transfer_date: string;
+      /**
+       * Format: date-time
+       * @description deleted at
+       */
+      deleted_at: string;
     };
     CreateSlipDto: {
       orders: string[];
@@ -646,7 +659,7 @@ export interface operations {
       /** @description Pong! */
       200: {
         content: {
-          "application/json": string;
+          "application/json": components["schemas"]["PingResponseDto"];
         };
       };
     };
@@ -1270,6 +1283,20 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["slipSchema"][];
         };
+      };
+    };
+  };
+  /** Require ADMIN */
+  SlipsController_deleteSlip: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description delete slip */
+      204: {
+        content: never;
       };
     };
   };

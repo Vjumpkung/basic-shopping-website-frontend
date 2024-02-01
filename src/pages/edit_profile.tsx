@@ -2,9 +2,11 @@ import client from "@/api/client";
 import EditPersonalAccount from "@/components/EditPersonalAccount";
 import UserLayout from "@/components/UserLayout";
 import { ProfileResponseDto, settingsSchema } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 
 export default function EditProfile({
   settings,
@@ -12,7 +14,9 @@ export default function EditProfile({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <UserLayout settings={settings} profile={profile}>
-      <title>{`${settings.name} - แก้ไขข้อมูลส่วนตัว`}</title>
+      <Head>
+        <title>{`${settings.name} - แก้ไขข้อมูลส่วนตัว`}</title>
+      </Head>
       <EditPersonalAccount
         profile={profile}
         className="w-full lg:w-1/2 xl:w-1/3 mx-auto px-5"
@@ -22,6 +26,10 @@ export default function EditProfile({
 }
 
 export async function getServerSideProps(ctx: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
+
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

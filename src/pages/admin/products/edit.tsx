@@ -6,6 +6,7 @@ import {
   ProductUpdateDto,
   settingsSchema,
 } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import {
   Button,
@@ -15,6 +16,7 @@ import {
 } from "@nextui-org/react";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -109,10 +111,12 @@ export default function EditProduct({
 
   return (
     <AdminLayout settings={settings}>
-      <title>{`${settings.name} - แก้ไขสินค้า ${id}`}</title>
+      <Head>
+        <title>{`${settings.name} - แก้ไขสินค้า ${productEdit?.name}`}</title>
+      </Head>
       <div className="flex flex-row">
         <div className="flex-grow">
-          <h1 className="text-3xl">แก้ไขสินค้า</h1>
+          <h1 className="text-2xl font-bold">แก้ไขสินค้า</h1>
         </div>
         <div className="flex-none self-end">
           <Popover placement="bottom-end" color="default">
@@ -165,6 +169,9 @@ export default function EditProduct({
 }
 
 export async function getServerSideProps(ctx: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

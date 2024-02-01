@@ -1,10 +1,12 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { settingsSchema } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import { Button, Input } from "@nextui-org/react";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -37,11 +39,13 @@ export default function CreateChoice({
 
   return (
     <AdminLayout settings={settings}>
-      <title>{`${settings.name} - เพิ่มตัวเลือก`}</title>
+      <Head>
+        <title>{`${settings.name} - เพิ่มตัวเลือก`}</title>
+      </Head>
       <main>
         <div className="flex flex-row">
           <div className="flex-grow">
-            <h1 className="text-3xl">เพิ่มตัวเลือก</h1>
+            <h1 className="text-2xl font-bold">เพิ่มตัวเลือก</h1>
           </div>
           <div className="flex-none self-end">
             <Button
@@ -92,6 +96,9 @@ export default function CreateChoice({
 }
 
 export async function getServerSideProps(ctx: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

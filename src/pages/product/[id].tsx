@@ -33,6 +33,8 @@ import remarkGfm from "remark-gfm";
 import remarkToc from "remark-toc";
 import { isURL } from "validator";
 import { calculatedChoicePrice, priceRange } from "..";
+import Head from "next/head";
+import apiCheck from "@/utils/apicheck";
 
 export default function Product({
   product,
@@ -113,7 +115,9 @@ export default function Product({
 
   return (
     <UserLayout settings={settings} profile={profile}>
-      <title>{`${settings?.name} - ${product.name}`}</title>
+      <Head>
+        <title>{`${settings?.name} - ${product.name}`}</title>
+      </Head>
       <div className="w-full sm:w-4/6 mx-auto">
         <Breadcrumbs className="sm:block hidden">
           <BreadcrumbItem key={12345} isDisabled>
@@ -141,129 +145,139 @@ export default function Product({
         </Breadcrumbs>
         <div className="grid xl:grid-cols-2">
           <div className="px-3 py-4 mx-auto max-w-[480px]">
-            <div className="mx-auto relative aspect-square border border-gray-200">
-              <LightBox
-                images={product.image}
-                display={openLightBox}
-                selectImage={selectedImage}
-                stateChanger={setOpenLightBox}
-              />
-              <div className="xl:block hidden">
-                {product.image.map((image, index) => {
-                  return (
-                    <div
-                      key={isURL(image) ? image : placeholder}
-                      className={` ${
-                        selectedImage === image ? "block" : "hidden"
-                      }`}
-                    >
-                      <button
-                        key={
-                          isURL(image) ? image : placeholder + index.toString()
-                        }
-                        onClick={() => {
-                          setOpenLightBox(!openLightBox);
-                        }}
-                      >
-                        <Image
-                          className="object-cover my-auto h-full aspect-square"
-                          as={NextImage}
-                          src={isURL(image) ? image : placeholder}
-                          alt={"just a image"}
-                          radius="none"
-                          width={480}
-                          height={480}
-                          quality={100}
-                        />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="xl:hidden snap-x snap-mandatory overflow-x-auto flex flex-nowrap no-scrollbar">
-                {product.image.map((image, index) => {
-                  return (
-                    <div
-                      key={
-                        isURL(image) ? image : placeholder + index.toString()
-                      }
-                      className="snap-center snap-always w-full flex-none"
-                      ref={imageRef.current[index]}
-                    >
-                      <Image
-                        className="object-cover my-auto h-full aspect-square"
-                        as={NextImage}
-                        src={isURL(image) ? image : placeholder}
-                        alt={"just a image"}
-                        width={480}
-                        height={480}
-                        quality={100}
-                        radius="none"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="flex flex-row justify-center">
-              <div className="self-center xl:block hidden">
-                <button
-                  onClick={() => {
-                    handleHorizontalScroll(elementRef.current, 1, 100, -5);
-                  }}
-                >
-                  <CaretLeftFill />
-                </button>
-              </div>
-              <div
-                className="flex flex-row my-5 overflow-x-auto gap-2 no-scrollbar"
-                ref={elementRef}
-              >
-                {product.image.map((image, index) => {
-                  return (
-                    <div className="flex-none aspect-square" key={image}>
-                      <button
-                        onMouseOver={() => SetSelectedImage(image)}
-                        onClick={() => {
-                          if (width >= 1280) {
-                            setOpenLightBox(!openLightBox);
-                          } else {
-                            imageRef.current[index]?.current?.scrollIntoView({
-                              block: "center",
-                              inline: "center",
-                            });
-                          }
-                        }}
-                      >
-                        <Image
-                          className={`border border-gray-300 object-cover w-20 h-20 ${
-                            selectedImage ===
-                            (isURL(image) ? image : placeholder)
-                              ? "border-blac"
-                              : "border-gray-300"
+            {product.image.length > 0 ? (
+              <>
+                <div className="mx-auto relative aspect-square border border-gray-200">
+                  <LightBox
+                    images={product.image}
+                    display={openLightBox}
+                    selectImage={selectedImage}
+                    stateChanger={setOpenLightBox}
+                  />
+                  <div className="xl:block hidden">
+                    {product.image.map((image, index) => {
+                      return (
+                        <div
+                          key={isURL(image) ? image : placeholder}
+                          className={` ${
+                            selectedImage === image ? "block" : "hidden"
                           }`}
-                          as={NextImage}
-                          src={isURL(image) ? image : placeholder}
-                          alt={"just a image"}
-                          radius="none"
-                          width={80}
-                          height={80}
-                        />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="self-center xl:block hidden">
-                <button
-                  onClick={() => {
-                    handleHorizontalScroll(elementRef.current, 1, 100, +5);
-                  }}
-                >
-                  <CaretRightFill />
-                </button>
-              </div>
-            </div>
+                        >
+                          <button
+                            key={
+                              isURL(image)
+                                ? image
+                                : placeholder + index.toString()
+                            }
+                            onClick={() => {
+                              setOpenLightBox(!openLightBox);
+                            }}
+                          >
+                            <Image
+                              className="object-scale-down my-auto h-full aspect-square"
+                              as={NextImage}
+                              src={isURL(image) ? image : placeholder}
+                              alt={"รูปภาพนั่นแหล่ะ"}
+                              radius="none"
+                              width={480}
+                              height={480}
+                              quality={100}
+                            />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="xl:hidden snap-x snap-mandatory overflow-x-auto flex flex-nowrap no-scrollbar">
+                    {product.image.map((image, index) => {
+                      return (
+                        <div
+                          key={
+                            isURL(image)
+                              ? image
+                              : placeholder + index.toString()
+                          }
+                          className="snap-center snap-always w-full flex-none"
+                          ref={imageRef.current[index]}
+                        >
+                          <Image
+                            className="object-scale-down my-auto h-full aspect-square"
+                            as={NextImage}
+                            src={isURL(image) ? image : placeholder}
+                            alt={"รูปภาพนั่นแหล่ะ"}
+                            width={480}
+                            height={480}
+                            quality={100}
+                            radius="none"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="flex flex-row justify-center">
+                  <div className="self-center xl:block hidden">
+                    <button
+                      onClick={() => {
+                        handleHorizontalScroll(elementRef.current, 1, 100, -5);
+                      }}
+                    >
+                      <CaretLeftFill />
+                    </button>
+                  </div>
+                  <div
+                    className="flex flex-row my-5 overflow-x-auto gap-2 no-scrollbar"
+                    ref={elementRef}
+                  >
+                    {product.image.map((image, index) => {
+                      return (
+                        <div className="flex-none aspect-square" key={image}>
+                          <button
+                            onMouseOver={() => SetSelectedImage(image)}
+                            onClick={() => {
+                              if (width >= 1280) {
+                                setOpenLightBox(!openLightBox);
+                              } else {
+                                imageRef.current[
+                                  index
+                                ]?.current?.scrollIntoView({
+                                  block: "center",
+                                  inline: "center",
+                                });
+                              }
+                            }}
+                          >
+                            <Image
+                              className={`border border-gray-300 object-scale-down w-20 h-20 ${
+                                selectedImage ===
+                                (isURL(image) ? image : placeholder)
+                                  ? "border-blac"
+                                  : "border-gray-300"
+                              }`}
+                              as={NextImage}
+                              src={isURL(image) ? image : placeholder}
+                              alt={"รูปภาพนั่นแหล่ะ"}
+                              radius="none"
+                              width={80}
+                              height={80}
+                            />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="self-center xl:block hidden">
+                    <button
+                      onClick={() => {
+                        handleHorizontalScroll(elementRef.current, 1, 100, +5);
+                      }}
+                    >
+                      <CaretRightFill />
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : null}
           </div>
           <div className="px-3 py-4">
             <h1 className="font-medium text-left text-2xl">{product.name}</h1>
@@ -413,6 +427,10 @@ export default function Product({
 }
 
 export const getServerSideProps = async (context: any) => {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
+
   const { data, error, response } = await client.GET("/api/v1/products/{id}", {
     params: {
       path: {

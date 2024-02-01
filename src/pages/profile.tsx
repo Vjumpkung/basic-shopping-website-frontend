@@ -5,6 +5,7 @@ import {
   ProfileResponseDto,
   settingsSchema,
 } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import {
   Avatar,
@@ -24,6 +25,7 @@ import {
 } from "@nextui-org/react";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 import NextImage from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -103,7 +105,9 @@ export default function Profile({
 
   return (
     <UserLayout settings={settings} profile={profile}>
-      <title>{settings?.name + " - บัญชีของฉัน"}</title>
+      <Head>
+        <title>{settings?.name + " - บัญชีของฉัน"}</title>
+      </Head>
       <div className="w-full lg:w-1/2 xl:w-1/3 mx-auto px-5">
         <h2 className="text-3xl">ข้อมูลของฉัน</h2>
         <div className="flex flex-wrap justify-center">
@@ -174,7 +178,7 @@ export default function Profile({
                                 src={item.product.image[0]}
                                 width={80}
                                 height={80}
-                                alt={"just a image"}
+                                alt={"รูปภาพนั่นแหล่ะ"}
                                 className="object-cover h-auto"
                                 radius="none"
                               />
@@ -280,6 +284,10 @@ export default function Profile({
 }
 
 export async function getServerSideProps({ req, res }: { req: any; res: any }) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
+
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

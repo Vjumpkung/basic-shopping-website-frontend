@@ -1,6 +1,7 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { choiceSchema, settingsSchema } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import {
   Button,
@@ -13,6 +14,7 @@ import {
 } from "@nextui-org/react";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { PencilSquare } from "react-bootstrap-icons";
@@ -28,7 +30,9 @@ export default function ManageChoices({
 
   return (
     <AdminLayout settings={settings}>
-      <title>{`${settings?.name} - จัดการตัวเลือก`}</title>
+      <Head>
+        <title>{`${settings?.name} - จัดการตัวเลือก`}</title>
+      </Head>
       <main>
         <div className="flex flex-row">
           <div>
@@ -77,6 +81,9 @@ export default function ManageChoices({
 }
 
 export async function getServerSideProps(ctx: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;

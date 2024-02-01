@@ -1,6 +1,7 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { choiceSchema, settingsSchema } from "@/types/swagger.types";
+import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import {
   Button,
@@ -12,6 +13,7 @@ import {
 import { getCookie } from "cookies-next";
 import { get } from "http";
 import { InferGetServerSidePropsType } from "next";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -69,7 +71,9 @@ export default function EditChoice({
 
   return (
     <AdminLayout settings={settings}>
-      <title>{`${settings.name} - แก้ไขตัวเลือก ${id}`}</title>
+      <Head>
+        <title>{`${settings.name} - แก้ไขตัวเลือก ${choiceName}`}</title>
+      </Head>
       <main>
         <div className="flex flex-row">
           <div className="flex-grow">
@@ -145,6 +149,9 @@ export default function EditChoice({
 }
 
 export async function getServerSideProps(ctx: any) {
+  if (await apiCheck()) {
+    return { redirect: { destination: "/500", permanent: false } };
+  }
   const { data } = await client.GET("/api/v1/settings");
 
   const settings = data as settingsSchema;
