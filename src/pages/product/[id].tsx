@@ -2,6 +2,7 @@ import client from "@/api/client";
 import LightBox from "@/components/LightBox";
 import ShoppingCartIcon from "@/components/ShoppingCart";
 import UserLayout from "@/components/UserLayout";
+import { placeholder } from "@/const/placeholder";
 import { ProductResponseDto, settingsSchema } from "@/types/swagger.types";
 import useWindowDimensions from "@/utils/checkviewport";
 import { getProfile } from "@/utils/profile";
@@ -20,7 +21,7 @@ import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { createRef, useRef, useState } from "react";
 import { CaretLeftFill, CaretRightFill } from "react-bootstrap-icons";
 import Markdown from "react-markdown";
 import { toast } from "react-toastify";
@@ -40,6 +41,10 @@ export default function Product({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   let { width, height } = useWindowDimensions();
   const elementRef = useRef(null);
+  const imageRef = useRef<any[]>([]);
+  imageRef.current = product.image.map(
+    (element, i) => imageRef.current[i] ?? createRef()
+  );
   const token = getCookie("shopping-jwt") as string | null;
   const [price, SetPrice] = useState<number>(-1);
   const [quantity, SetQuantity] = useState<number>(0);
@@ -136,50 +141,72 @@ export default function Product({
         </Breadcrumbs>
         <div className="grid xl:grid-cols-2">
           <div className="px-3 py-4 mx-auto max-w-[480px]">
-            <div className="mx-auto overflow-hidden relative aspect-square border border-gray-200">
+            <div className="mx-auto relative aspect-square border border-gray-200">
               <LightBox
                 images={product.image}
                 display={openLightBox}
                 selectImage={selectedImage}
                 stateChanger={setOpenLightBox}
               />
-              {product.image.map((image) => {
-                if (isURL(image) === false) {
-                  return null;
-                }
-
-                return (
-                  <div
-                    key={image}
-                    className={` ${
-                      selectedImage === image ? "block" : "hidden"
-                    }`}
-                  >
-                    <button
-                      key={image}
-                      onClick={() => {
-                        if (width >= 1280) {
-                          setOpenLightBox(!openLightBox);
+              <div className="xl:block hidden">
+                {product.image.map((image, index) => {
+                  return (
+                    <div
+                      key={isURL(image) ? image : placeholder}
+                      className={` ${
+                        selectedImage === image ? "block" : "hidden"
+                      }`}
+                    >
+                      <button
+                        key={
+                          isURL(image) ? image : placeholder + index.toString()
                         }
-                      }}
+                        onClick={() => {
+                          setOpenLightBox(!openLightBox);
+                        }}
+                      >
+                        <Image
+                          className="object-cover my-auto h-full aspect-square"
+                          as={NextImage}
+                          src={isURL(image) ? image : placeholder}
+                          alt={"just a image"}
+                          radius="none"
+                          width={480}
+                          height={480}
+                          quality={100}
+                        />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="xl:hidden snap-x snap-mandatory overflow-x-auto flex flex-nowrap no-scrollbar">
+                {product.image.map((image, index) => {
+                  return (
+                    <div
+                      key={
+                        isURL(image) ? image : placeholder + index.toString()
+                      }
+                      className="snap-center snap-always w-full flex-none"
+                      ref={imageRef.current[index]}
                     >
                       <Image
                         className="object-cover my-auto h-full aspect-square"
                         as={NextImage}
-                        src={image}
+                        src={isURL(image) ? image : placeholder}
                         alt={"just a image"}
-                        radius="none"
                         width={480}
                         height={480}
                         quality={100}
+                        radius="none"
                       />
-                    </button>
-                  </div>
-                );
-              })}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
             <div className="flex flex-row justify-center">
-              <div className="self-center">
+              <div className="self-center xl:block hidden">
                 <button
                   onClick={() => {
                     handleHorizontalScroll(elementRef.current, 1, 100, -5);
@@ -192,11 +219,7 @@ export default function Product({
                 className="flex flex-row my-5 overflow-x-auto gap-2 no-scrollbar"
                 ref={elementRef}
               >
-                {product.image.map((image) => {
-                  if (isURL(image) === false) {
-                    return null;
-                  }
-
+                {product.image.map((image, index) => {
                   return (
                     <div className="flex-none aspect-square" key={image}>
                       <button
@@ -204,17 +227,23 @@ export default function Product({
                         onClick={() => {
                           if (width >= 1280) {
                             setOpenLightBox(!openLightBox);
+                          } else {
+                            imageRef.current[index]?.current?.scrollIntoView({
+                              block: "center",
+                              inline: "center",
+                            });
                           }
                         }}
                       >
                         <Image
                           className={`border border-gray-300 object-cover w-20 h-20 ${
-                            selectedImage === image
+                            selectedImage ===
+                            (isURL(image) ? image : placeholder)
                               ? "border-blac"
                               : "border-gray-300"
                           }`}
                           as={NextImage}
-                          src={image}
+                          src={isURL(image) ? image : placeholder}
                           alt={"just a image"}
                           radius="none"
                           width={80}
@@ -225,7 +254,7 @@ export default function Product({
                   );
                 })}
               </div>
-              <div className="self-center">
+              <div className="self-center xl:block hidden">
                 <button
                   onClick={() => {
                     handleHorizontalScroll(elementRef.current, 1, 100, +5);

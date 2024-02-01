@@ -1,4 +1,5 @@
 import client from "@/api/client";
+import { placeholder } from "@/const/placeholder";
 import {
   ProductCreateDto,
   ProductResponseDto,
@@ -28,11 +29,16 @@ import {
 import { getCookie } from "cookies-next";
 import { CldUploadButton, CldUploadWidgetInfo } from "next-cloudinary";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import { Dispatch, useEffect, useState } from "react";
-import { PencilSquare, TrashFill } from "react-bootstrap-icons";
+import {
+  CaretDownFill,
+  CaretUpFill,
+  PencilSquare,
+  TrashFill,
+} from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 import validator from "validator";
+import isURL from "validator/lib/isURL";
 
 export default function ProductForm({
   product_res,
@@ -80,12 +86,6 @@ export default function ProductForm({
   const [editChoice, setEditChoice] = useState<string | undefined>("");
   const [editChoiceName, setEditChoiceName] = useState<string | undefined>("");
   const [editChoicePrice, setEditChoicePrice] = useState<number | undefined>(0);
-  const [choice_trigger, setChoice_trigger] = useState<boolean>(false);
-
-  useEffect(() => {
-    setChoices(product?.choices as choiceSchema[]);
-    setEditChoice("");
-  }, [choice_trigger]);
 
   useEffect(() => {
     client
@@ -171,7 +171,7 @@ export default function ProductForm({
     setNewChoicePrice(0);
   }
 
-  function onSave() {
+  function onSaveChoice() {
     client
       .PATCH("/api/v1/choices/{id}", {
         headers: {
@@ -191,19 +191,31 @@ export default function ProductForm({
         toast.success("แก้ไขตัวเลือกเรียบร้อยแล้ว", {
           position: "bottom-right",
         });
-        client
-          .GET("/api/v1/products/{id}", {
-            params: {
-              path: {
-                id: product_res?._id as string,
-              },
-            },
-          })
-          .then((res) => {
-            setProduct(res.data);
-            setChoice_trigger(!choice_trigger);
-          });
+        let newChoices = [...choices];
+        let index = newChoices.findIndex((c) => c._id === editChoice);
+        newChoices[index].name = editChoiceName as string;
+        newChoices[index].price = editChoicePrice as number;
+        setChoices(newChoices);
+        setEditChoice("");
       });
+  }
+
+  function choice_swap(index1: number, index2: number) {
+    let newChoices = [...choices];
+    [newChoices[index1], newChoices[index2]] = [
+      newChoices[index2],
+      newChoices[index1],
+    ];
+    setChoices(newChoices);
+  }
+
+  function image_swap(index1: number, index2: number) {
+    let newImages = [...images];
+    [newImages[index1], newImages[index2]] = [
+      newImages[index2],
+      newImages[index1],
+    ];
+    setImages(newImages);
   }
 
   return (
@@ -265,7 +277,7 @@ export default function ProductForm({
           </div>
           <div className="flex-none self-end">
             <Button color="primary" size="sm" onPress={onOpen}>
-              แก้ไข
+              เพิ่มตัวเลือก
             </Button>
             <Modal
               isOpen={isOpen}
@@ -316,55 +328,73 @@ export default function ProductForm({
         <div>
           <Table aria-label="selected choices">
             <TableHeader>
+              <TableColumn>ลำดับ</TableColumn>
               <TableColumn>ชื่อตัวเลือก</TableColumn>
               <TableColumn>ราคา (บาท)</TableColumn>
               <TableColumn>แก้ไข</TableColumn>
+              <TableColumn>ลบ</TableColumn>
             </TableHeader>
             <TableBody>
-              {choices?.map((choice) => {
+              {choices?.map((choice, index) => {
                 return (
                   <TableRow key={choice._id}>
-                    <TableCell>
-                      <code>
-                        <input
-                          className={`w-full ${
-                            editChoice === choice._id
-                              ? "bg-gray-100"
-                              : "bg-white"
-                          } px-2 py-2 rounded-md`}
-                          type="text"
-                          value={
-                            editChoice === choice._id
-                              ? editChoiceName
-                              : choice.name
-                          }
-                          onChange={(e) => {
-                            setEditChoiceName(e.target.value);
-                          }}
-                          disabled={editChoice !== choice._id}
-                        />
-                      </code>
+                    <TableCell width={50}>
+                      <div className="flex flex-col justify-center text-lg">
+                        <div className="self-center">
+                          <button
+                            onClick={() => {
+                              choice_swap(index, index - 1);
+                            }}
+                            disabled={index === 0}
+                          >
+                            <CaretUpFill className="text-gray-300 hover:text-gray-500 transition" />
+                          </button>
+                        </div>
+                        <div className="self-center">
+                          <button
+                            onClick={() => {
+                              choice_swap(index, index + 1);
+                            }}
+                            disabled={index === choices.length - 1}
+                          >
+                            <CaretDownFill className="text-gray-300 hover:text-gray-500 transition" />{" "}
+                          </button>
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <code>
-                        <input
-                          className={`w-full ${
-                            editChoice === choice._id
-                              ? "bg-gray-100"
-                              : "bg-white"
-                          } px-2 py-2 rounded-md`}
-                          type="number"
-                          value={
-                            editChoice === choice._id
-                              ? editChoicePrice?.toString()
-                              : choice.price.toString()
-                          }
-                          onChange={(e) => {
-                            setEditChoicePrice(+e.target.value);
-                          }}
-                          disabled={editChoice !== choice._id}
-                        />
-                      </code>
+                      <input
+                        className={`w-full ${
+                          editChoice === choice._id ? "bg-gray-100" : "bg-white"
+                        } px-2 py-2 rounded-md`}
+                        type="text"
+                        value={
+                          editChoice === choice._id
+                            ? editChoiceName
+                            : choice.name
+                        }
+                        onChange={(e) => {
+                          setEditChoiceName(e.target.value);
+                        }}
+                        disabled={editChoice !== choice._id}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <input
+                        className={`w-full ${
+                          editChoice === choice._id ? "bg-gray-100" : "bg-white"
+                        } px-2 py-2 rounded-md`}
+                        type="number"
+                        value={
+                          editChoice === choice._id
+                            ? editChoicePrice?.toString()
+                            : choice.price.toString()
+                        }
+                        onChange={(e) => {
+                          setEditChoicePrice(+e.target.value);
+                        }}
+                        disabled={editChoice !== choice._id}
+                      />
                     </TableCell>
                     <TableCell width={170}>
                       <div className="flex flex-row justify-center">
@@ -383,7 +413,7 @@ export default function ProductForm({
                               variant="flat"
                               color="primary"
                               onClick={() => {
-                                onSave();
+                                onSaveChoice();
                               }}
                             >
                               บันทึก
@@ -404,6 +434,19 @@ export default function ProductForm({
                         )}
                       </div>
                     </TableCell>
+                    <TableCell width={50}>
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() => {
+                            setChoices(
+                              choices.filter((c) => c._id !== choice._id)
+                            );
+                          }}
+                        >
+                          <TrashFill className="text-lg transition text-danger-300 hover:text-danger-500" />
+                        </button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 );
               }) || []}
@@ -413,7 +456,7 @@ export default function ProductForm({
       </div>
       <div className="flex flex-col mt-2 gap-2">
         <div>
-          <p className="text-lg">เพิ่มตัวเลือก</p>
+          <p className="text-lg">เพิ่มตัวเลือกใหม่</p>
         </div>
         <div className="flex flex-row gap-3">
           <Input
@@ -440,33 +483,50 @@ export default function ProductForm({
         <div>
           <p className="text-lg">รูปภาพ</p>
         </div>
-        <div className="flex flex-row gap-2">
-          {images?.map((image) => {
-            if (!validator.isURL(image)) return <></>;
-
-            return (
-              <div key={image}>
-                <Image
-                  src={image}
-                  width={90}
-                  height={90}
-                  alt={productName}
-                  className="aspect-square object-cover"
-                />
-              </div>
-            );
-          })}
-        </div>
         <div className="">
-          <form className="pt-3">
-            {images?.map((input, index) => {
+          <div className="pt-3">
+            {images?.map((image, index) => {
               return (
-                <div key={index} className="flex flex-row pb-3 gap-3">
+                <div
+                  key={index}
+                  className="flex flex-row my-2 gap-3 rounded-md p-1 items-center"
+                >
+                  <div className="flex-none">
+                    <div>
+                      <button
+                        onClick={() => {
+                          image_swap(index, index - 1);
+                        }}
+                        disabled={index === 0}
+                      >
+                        <CaretUpFill className="text-gray-300 hover:text-gray-500 transition" />
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        onClick={() => {
+                          image_swap(index, index + 1);
+                        }}
+                        disabled={index === images.length - 1}
+                      >
+                        <CaretDownFill className="text-gray-300 hover:text-gray-500 transition" />{" "}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <Image
+                      src={isURL(image) ? image : placeholder}
+                      width={90}
+                      height={90}
+                      alt={productName}
+                      className="aspect-square object-cover"
+                    />
+                  </div>
                   <div className="flex-grow">
                     <Input
                       placeholder="URL รูปภาพ"
                       type="text"
-                      value={input}
+                      value={image}
                       onChange={(e) => {
                         const newImages = [...images];
                         newImages[index] = e.target.value;
@@ -476,24 +536,21 @@ export default function ProductForm({
                     />
                   </div>
                   <div className="flex-none self-center">
-                    <Button
-                      color="danger"
-                      variant="light"
+                    <button
                       onClick={() => {
                         const newImages = [...images];
                         newImages.splice(index, 1);
                         setImages(newImages);
                       }}
-                      size="sm"
                     >
-                      <TrashFill className="text-lg" />
-                    </Button>
+                      <TrashFill className="text-lg transition text-danger-300 hover:text-danger-500" />
+                    </button>
                   </div>
                 </div>
               );
             })}
-          </form>
-          <div className="flex flex-row justify-end">
+          </div>
+          <div className="flex flex-row justify-end pt-3">
             <Button
               onClick={() => {
                 setImages([...images, ""]);
@@ -519,7 +576,7 @@ export default function ProductForm({
       <div>
         <p className="text-lg mt-2">สถานะ</p>
       </div>
-      <div className="flex flex-row gap-2 justify-evenly max-w-[480px] mx-auto">
+      <div className="flex flex-row gap-2 justify-center max-w-[480px] mx-auto">
         <div className="flex flex-row">
           <span className={`${published_at ? "text-gray-400" : "text-black"}`}>
             แบบร่าง
