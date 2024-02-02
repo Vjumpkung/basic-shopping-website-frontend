@@ -174,7 +174,7 @@ export default function Product({
                             }}
                           >
                             <Image
-                              className="object-scale-down my-auto h-full aspect-square"
+                              className="object-contain my-auto h-full aspect-square"
                               as={NextImage}
                               src={isURL(image) ? image : placeholder}
                               alt={"รูปภาพนั่นแหล่ะ"}
@@ -201,7 +201,7 @@ export default function Product({
                           ref={imageRef.current[index]}
                         >
                           <Image
-                            className="object-scale-down my-auto h-full aspect-square"
+                            className="object-contain my-auto h-full aspect-square"
                             as={NextImage}
                             src={isURL(image) ? image : placeholder}
                             alt={"รูปภาพนั่นแหล่ะ"}
@@ -248,10 +248,10 @@ export default function Product({
                             }}
                           >
                             <Image
-                              className={`border border-gray-300 object-scale-down w-20 h-20 ${
+                              className={`border object-scale-down w-20 h-20 ${
                                 selectedImage ===
                                 (isURL(image) ? image : placeholder)
-                                  ? "border-blac"
+                                  ? "border-gray-400"
                                   : "border-gray-300"
                               }`}
                               as={NextImage}

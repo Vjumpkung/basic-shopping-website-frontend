@@ -37,7 +37,6 @@ import {
   TrashFill,
 } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
-import validator from "validator";
 import isURL from "validator/lib/isURL";
 
 export default function ProductForm({
@@ -53,9 +52,6 @@ export default function ProductForm({
   setAvailable?: Dispatch<boolean>;
   setIsPublish?: Dispatch<boolean>;
 }) {
-  const [product, setProduct] = useState<ProductResponseDto | undefined>(
-    product_res
-  );
   const [resource, setResource] = useState<CldUploadWidgetInfo | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const token = getCookie("shopping-jwt") as string | null;
@@ -521,7 +517,7 @@ export default function ProductForm({
                       width={90}
                       height={90}
                       alt={productName}
-                      className="aspect-square object-cover"
+                      className="aspect-square object-contain"
                     />
                   </div>
                   <div className="flex-grow">
