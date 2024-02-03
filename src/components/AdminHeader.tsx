@@ -9,10 +9,10 @@ import {
   Bag,
   BoxArrowRight,
   CaretLeftFill,
-  CaretRightFill,
   CheckCircle,
   FileEarmarkPerson,
   Gear,
+  List,
   Person,
   Shop,
 } from "react-bootstrap-icons";
@@ -31,11 +31,16 @@ export default function AdminHeader({
 
   return (
     <div
-      className={`rounded-md flex ${
-        isOpen ? "flex-row" : "flex-col"
-      } ml-5 my-5 px-2 py-2 bg-white max-w-xs flex-none`}
+      className={`rounded-md flex flex-col ml-5 my-5 px-2 py-2 bg-white max-w-xs flex-none`}
     >
-      <div className={`flex-grow ${isOpen ? "block" : "hidden"}`}>
+      <div className="pt-2 self-center">
+        <button onClick={() => setIsOpen(!isOpen)}>
+          <p className="text-center text-xl text-gray-500 transition hover:text-black">
+            {isOpen ? <CaretLeftFill /> : <List />}
+          </p>
+        </button>
+      </div>
+      <div className={`${isOpen ? "flex-grow" : "flex-none"}`}>
         <Link href="/" prefetch={false}>
           <div className="flex flex-row ">
             <div className="mx-2 mt-2 flex-none">
@@ -47,7 +52,11 @@ export default function AdminHeader({
                 className="aspect-square object-cover"
               />
             </div>
-            <div className="flex-1 max-w-[213px] min-w-[213px] mt-3 mr-4 truncate overflow-hidden">
+            <div
+              className={`${
+                isOpen ? "block" : "hidden"
+              } flex-1 max-w-[213px] min-w-[213px] mt-3 mr-4 truncate overflow-hidden`}
+            >
               <p className="text-xl">{settings.name}</p>
             </div>
           </div>
@@ -57,6 +66,7 @@ export default function AdminHeader({
           className="py-4"
           itemClasses={{
             base: "px-3 rounded-lg gap-3 h-12 data-[hover=true]:bg-gray-200 text-gray-600",
+            title: `${isOpen ? "block" : "hidden"}`,
           }}
           onAction={(item) => {
             if (item !== "logout") {
@@ -128,99 +138,6 @@ export default function AdminHeader({
             ออกจากระบบ
           </ListboxItem>
         </Listbox>
-      </div>
-      <div className={`flex-none ${isOpen ? "hidden" : "block"} mx-auto`}>
-        <Link href="/" prefetch={false}>
-          <div className="flex flex-row flex-wrap">
-            <div className="mx-2 mt-2">
-              <Image
-                src={settings.logo}
-                width={32}
-                height={32}
-                alt="logo"
-                className="aspect-square object-cover"
-              />
-            </div>
-          </div>
-        </Link>
-        <Listbox
-          aria-label="admin menu"
-          className="py-4"
-          itemClasses={{
-            base: "px-3 rounded-lg gap-3 h-12 data-[hover=true]:bg-gray-200 text-gray-600",
-            title: "hidden",
-          }}
-          onAction={(item) => {
-            if (item !== "logout") {
-              router.push(`/admin/${item}`);
-            } else {
-              deleteCookie("shopping-jwt");
-              router.push(`/signin`);
-            }
-          }}
-        >
-          <ListboxItem
-            className={`${
-              adminPath === "products" && " bg-gray-200 text-black"
-            }`}
-            startContent={<Bag />}
-            key="products"
-            title="products"
-          />
-          <ListboxItem
-            className={`${
-              adminPath === "choices" && " bg-gray-200 text-black"
-            }`}
-            startContent={<CheckCircle />}
-            key="choices"
-            title="choices"
-          />
-          <ListboxItem
-            className={`${adminPath === "orders" && " bg-gray-200 text-black"}`}
-            startContent={<Shop />}
-            key="orders"
-            title="orders"
-          />
-          <ListboxItem
-            className={`${
-              adminPath === "manage_accounts" && " bg-gray-200 text-black"
-            }`}
-            startContent={<FileEarmarkPerson />}
-            key="manage_accounts"
-            title="manage_accounts"
-          />
-          <ListboxItem
-            className={`${
-              adminPath === "manage_personal_account" &&
-              " bg-gray-200 text-black"
-            }`}
-            startContent={<Person />}
-            key="manage_personal_account"
-            title="manage_personal_account"
-          />
-          <ListboxItem
-            className={`${
-              adminPath === "shop_settings" && " bg-gray-200 text-black"
-            }`}
-            startContent={<Gear />}
-            key="shop_settings"
-            title="shop_settings"
-          />
-          <ListboxItem
-            className={`${adminPath === "logout" && " bg-gray-200 text-black"}`}
-            startContent={<BoxArrowRight />}
-            key="logout"
-            title="logout"
-          />
-        </Listbox>
-      </div>
-
-      <div className="w-full max-w-[20px] self-center">
-        <button onClick={() => setIsOpen(!isOpen)}>
-          <p className="text-center text-xl text-gray-500 transition hover:scale-125 hover:text-black">
-            {isOpen ? <CaretLeftFill /> : <CaretRightFill />}
-          </p>
-        </button>
       </div>
     </div>
   );
