@@ -76,7 +76,10 @@ export default function LightBox({
         <>
           {images.map((image, index) => {
             return (
-              <div className={`${imageToShow === image ? "block" : "hidden"}`}>
+              <div
+                key={image + index.toString()}
+                className={`${imageToShow === image ? "block" : "hidden"}`}
+              >
                 <Image
                   radius="none"
                   as={NextImage}
