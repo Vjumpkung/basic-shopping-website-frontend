@@ -269,6 +269,7 @@ export default function Product({
                             }}
                             onClick={() => {
                               if (width >= 1280) {
+                                SetSelectedImage(image);
                                 setOpenLightBox(!openLightBox);
                               }
                               setThumbIndex(index);
