@@ -21,7 +21,7 @@ import { InferGetServerSidePropsType } from "next";
 import NextImage from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createRef, useRef, useState } from "react";
+import { createRef, useEffect, useRef, useState } from "react";
 import { CaretLeftFill, CaretRightFill } from "react-bootstrap-icons";
 import Markdown from "react-markdown";
 import { toast } from "react-toastify";
@@ -42,15 +42,22 @@ export default function Product({
   profile,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   let { width, height } = useWindowDimensions();
-  const elementRef = useRef(null);
   const imageRef = useRef<any[]>([]);
   imageRef.current = product.image.map(
     (element, i) => imageRef.current[i] ?? createRef()
+  );
+  const thumbnailRef = useRef<any[]>([]);
+  thumbnailRef.current = product.image?.map(
+    (element, i) => thumbnailRef.current[i] ?? createRef()
   );
   const token = getCookie("shopping-jwt") as string | null;
   const [price, SetPrice] = useState<number>(-1);
   const [quantity, SetQuantity] = useState<number>(0);
   const [selectedChoice, SetSelectedChoice] = useState<string>("");
+  const [thumbIndex, setThumbIndex] = useState<number>(0);
+  const [indexImgUrl, SetIndexImgUrl] = useState<string>(
+    product.image?.length > 0 ? product.image[0] + "0" : ""
+  );
   const [selectedImage, SetSelectedImage] = useState<string>(product.image[0]);
   const [addinfo, SetAddinfo] = useState<string>("");
 
@@ -92,26 +99,28 @@ export default function Product({
     toast.success("เพิ่มสินค้าลงในตะกร้าแล้ว", { position: "bottom-right" });
   };
 
+  function thumb_scroll() {
+    thumbnailRef.current[thumbIndex]?.current?.scrollIntoView({
+      inline: "center",
+      block: "nearest",
+    });
+  }
+
+  useEffect(() => {
+    if (width < 1280) {
+      imageRef.current[thumbIndex]?.current?.scrollIntoView({
+        inline: "center",
+        block: "nearest",
+      });
+    } else {
+      SetIndexImgUrl(product.image[thumbIndex] + thumbIndex.toString());
+    }
+  }, [thumbIndex]);
+
   const price_range =
     product.choices.length > 0
       ? calculatedChoicePrice(product.choices)
       : new priceRange(0, 0);
-
-  const handleHorizontalScroll = (
-    element: any,
-    speed: number,
-    distance: number,
-    step: number
-  ) => {
-    let scrollAmount = 0;
-    const slideTimer = setInterval(() => {
-      element.scrollLeft += step;
-      scrollAmount += Math.abs(step);
-      if (scrollAmount >= distance) {
-        clearInterval(slideTimer);
-      }
-    }, speed);
-  };
 
   return (
     <UserLayout settings={settings} profile={profile}>
@@ -143,18 +152,18 @@ export default function Product({
               );
             })}
         </Breadcrumbs>
+        <LightBox
+          images={product.image}
+          display={openLightBox}
+          selectImage={selectedImage}
+          stateChanger={setOpenLightBox}
+        />
         <div className="grid xl:grid-cols-2">
           <div className="px-3 py-4 mx-auto max-w-[480px]">
             {product.image.length > 0 ? (
               <>
-                <div className="mx-auto relative aspect-square border border-gray-200">
-                  <LightBox
-                    images={product.image}
-                    display={openLightBox}
-                    selectImage={selectedImage}
-                    stateChanger={setOpenLightBox}
-                  />
-                  <div className="snap-x snap-mandatory overflow-x-auto flex flex-nowrap no-scrollbar">
+                <div className="border border-gray-200">
+                  <div className="xl:hidden snap-x snap-mandatory overflow-x-auto flex flex-nowrap no-scrollbar">
                     {product.image.map((image, index) => {
                       return (
                         <div
@@ -163,12 +172,45 @@ export default function Product({
                               ? image
                               : placeholder + index.toString()
                           }
-                          className="snap-center snap-always w-full flex-none"
+                          className="snap-center snap-always w-fit max-w-[460px] h-full max-h-[460px] flex-none"
+                        >
+                          <Image
+                            className="object-contain my-auto h-full aspect-square"
+                            as={NextImage}
+                            src={isURL(image) ? image : placeholder}
+                            alt={"รูปภาพนั่นแหล่ะ"}
+                            width={480}
+                            height={480}
+                            quality={100}
+                            radius="none"
+                            ref={imageRef.current[index]}
+                            loading="eager"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="xl:block hidden">
+                    {product.image.map((image, index) => {
+                      return (
+                        <div
+                          key={
+                            isURL(image)
+                              ? image
+                              : placeholder + index.toString()
+                          }
+                          className={`flex flex-grow ${
+                            indexImgUrl === image + index.toString()
+                              ? ""
+                              : "hidden"
+                          }`}
                           ref={imageRef.current[index]}
                         >
                           <button
+                            className=""
                             onClick={() => {
                               if (width >= 1280) {
+                                SetSelectedImage(image);
                                 setOpenLightBox(!openLightBox);
                               }
                             }}
@@ -182,6 +224,7 @@ export default function Product({
                               height={480}
                               quality={100}
                               radius="none"
+                              loading="eager"
                             />
                           </button>
                         </div>
@@ -189,57 +232,57 @@ export default function Product({
                     })}
                   </div>
                 </div>
-                <div className="flex flex-row justify-center">
+                <div className="flex flex-row justify-center ">
                   <div className="self-center xl:block hidden">
                     <button
                       onClick={() => {
-                        handleHorizontalScroll(elementRef.current, 1, 100, -5);
+                        if (thumbIndex > 0) {
+                          setThumbIndex(thumbIndex - 1);
+                          thumb_scroll();
+                        }
                       }}
                     >
                       <CaretLeftFill />
                     </button>
                   </div>
-                  <div
-                    className="flex flex-row my-5 overflow-x-auto gap-2 no-scrollbar"
-                    ref={elementRef}
-                  >
+                  <div className="flex flex-row my-5 overflow-x-auto gap-2 no-scrollbar">
                     {product.image.map((image, index) => {
                       return (
                         <div className="flex-none aspect-square" key={image}>
                           <button
                             onMouseOver={() => {
-                              SetSelectedImage(image);
-                              imageRef.current[index]?.current?.scrollIntoView({
-                                block: "center",
-                                inline: "center",
-                              });
+                              if (width >= 1280) {
+                                setThumbIndex(index);
+                                SetIndexImgUrl(
+                                  product.image[thumbIndex] +
+                                    thumbIndex.toString()
+                                );
+                              } else {
+                                SetSelectedImage(image);
+                                imageRef.current[
+                                  index
+                                ]?.current?.scrollIntoView({
+                                  inline: "center",
+                                  block: "nearest",
+                                });
+                              }
                             }}
                             onClick={() => {
                               if (width >= 1280) {
                                 setOpenLightBox(!openLightBox);
-                              } else {
-                                imageRef.current[
-                                  index
-                                ]?.current?.scrollIntoView({
-                                  block: "center",
-                                  inline: "center",
-                                });
                               }
+                              setThumbIndex(index);
                             }}
                           >
                             <Image
-                              className={`border object-scale-down w-20 h-20 ${
-                                selectedImage ===
-                                (isURL(image) ? image : placeholder)
-                                  ? "border-gray-400"
-                                  : "border-gray-300"
-                              }`}
+                              ref={thumbnailRef.current[index]}
+                              className={`border aspect-square object-contain border-gray-300 hover:border-gray-600`}
                               as={NextImage}
                               src={isURL(image) ? image : placeholder}
                               alt={"รูปภาพนั่นแหล่ะ"}
                               radius="none"
-                              width={80}
-                              height={80}
+                              width={77}
+                              height={77}
                             />
                           </button>
                         </div>
@@ -249,7 +292,10 @@ export default function Product({
                   <div className="self-center xl:block hidden">
                     <button
                       onClick={() => {
-                        handleHorizontalScroll(elementRef.current, 1, 100, +5);
+                        if (thumbIndex < product.image.length - 1) {
+                          setThumbIndex(thumbIndex + 1);
+                          thumb_scroll();
+                        }
                       }}
                     >
                       <CaretRightFill />

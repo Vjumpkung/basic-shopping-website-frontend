@@ -1,6 +1,9 @@
 import { Image } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { CaretLeftFill, CaretRightFill } from "react-bootstrap-icons";
+import NextImage from "next/image";
+import isURL from "validator/lib/isURL";
+import { placeholder } from "@/const/placeholder";
 
 export default function LightBox({
   images,
@@ -56,36 +59,44 @@ export default function LightBox({
   };
 
   return (
-    <>
-      {lightboxDisplay ? (
-        <div
-          id="lightbox"
-          className="fixed top-0 bottom-0 right-0 left-0 flex min-h-screen w-full flex-row items-center justify-between z-50"
-          onClick={() => {
-            hideLightBox();
-            stateChanger(false);
-          }}
-        >
-          <button onClick={showPrev} className="sm:px-6 px-1">
-            <p className="font-medium md:text-6xl text-xl text-white">
-              <CaretLeftFill />
-            </p>
-          </button>
-          <Image
-            radius="none"
-            alt="lightbox"
-            className="object-scale-down h-screen mx-auto px-2 py-2"
-            src={imageToShow}
-          />
-          <button onClick={showNext} className="sm:px-6 px-1">
-            <p className="font-medium md:text-6xl text-xl text-white">
-              <CaretRightFill />
-            </p>
-          </button>
-        </div>
-      ) : (
-        ""
-      )}
-    </>
+    <div className={`${lightboxDisplay ? "block" : "hidden"}`}>
+      <div
+        id="lightbox"
+        className="fixed top-0 bottom-0 right-0 left-0 flex min-h-screen w-full flex-row items-center justify-between z-50"
+        onClick={() => {
+          hideLightBox();
+          stateChanger(false);
+        }}
+      >
+        <button onClick={showPrev} className="sm:px-6 px-1">
+          <p className="font-medium md:text-6xl text-xl text-white">
+            <CaretLeftFill />
+          </p>
+        </button>
+        <>
+          {images.map((image, index) => {
+            return (
+              <div className={`${imageToShow === image ? "block" : "hidden"}`}>
+                <Image
+                  radius="none"
+                  as={NextImage}
+                  width={1080}
+                  height={1080}
+                  alt="lightbox"
+                  className="object-scale-down h-screen mx-auto px-2 py-2"
+                  src={isURL(image) ? image : placeholder}
+                  loading="eager"
+                />
+              </div>
+            );
+          })}
+        </>
+        <button onClick={showNext} className="sm:px-6 px-1">
+          <p className="font-medium md:text-6xl text-xl text-white">
+            <CaretRightFill />
+          </p>
+        </button>
+      </div>
+    </div>
   );
 }
