@@ -43,39 +43,8 @@ export default function EditProduct({
   );
 
   function onSave() {
-    client.PATCH("/api/v1/products/{id}/update", {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-      params: {
-        path: {
-          id: id as string,
-        },
-      },
-      body: {
-        name: productEdit?.name,
-        description: productEdit?.description,
-        choices: productEdit?.choices,
-        price: productEdit?.price,
-        image: productEdit?.image,
-      },
-    });
-    client.PATCH("/api/v1/products/{id}", {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-      params: {
-        query: {
-          available: isAvailable,
-        },
-        path: {
-          id: id as string,
-        },
-      },
-    });
-    client.PATCH(
-      `/api/v1/products/{id}/${published_at ? "publish" : "draft"}`,
-      {
+    client
+      .PATCH("/api/v1/products/{id}/update", {
         headers: {
           authorization: `Bearer ${token}`,
         },
@@ -84,12 +53,52 @@ export default function EditProduct({
             id: id as string,
           },
         },
-      }
-    );
-    toast.success("แก้ไขสินค้าเรียบร้อยแล้ว", { position: "bottom-right" });
-    setTimeout(() => {
-      router.push("/admin/products");
-    }, 500);
+        body: {
+          name: productEdit?.name,
+          description: productEdit?.description,
+          choices: productEdit?.choices,
+          price: productEdit?.price,
+          image: productEdit?.image,
+        },
+      })
+      .then(() => {
+        client
+          .PATCH("/api/v1/products/{id}", {
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
+            params: {
+              query: {
+                available: isAvailable,
+              },
+              path: {
+                id: id as string,
+              },
+            },
+          })
+          .then(() => {
+            client
+              .PATCH(
+                `/api/v1/products/{id}/${published_at ? "publish" : "draft"}`,
+                {
+                  headers: {
+                    authorization: `Bearer ${token}`,
+                  },
+                  params: {
+                    path: {
+                      id: id as string,
+                    },
+                  },
+                }
+              )
+              .then(() => {
+                toast.success("แก้ไขสินค้าเรียบร้อยแล้ว", {
+                  position: "bottom-right",
+                });
+                router.push("/admin/products");
+              });
+          });
+      });
   }
 
   function onDelete() {

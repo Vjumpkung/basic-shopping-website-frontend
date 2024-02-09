@@ -16,7 +16,6 @@ import {
   CardHeader,
   Chip,
   Divider,
-  Image,
   Modal,
   ModalBody,
   ModalContent,
@@ -26,7 +25,7 @@ import {
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
-import NextImage from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -174,13 +173,12 @@ export default function Profile({
                           <div>
                             <Link href={`/product/${item.product._id}`}>
                               <Image
-                                as={NextImage}
                                 src={item.product.image[0]}
                                 width={80}
                                 height={80}
                                 alt={"รูปภาพนั่นแหล่ะ"}
                                 className="object-cover h-auto"
-                                radius="none"
+                                loading="lazy"
                               />
                             </Link>
                           </div>

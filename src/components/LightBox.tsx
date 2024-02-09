@@ -1,6 +1,8 @@
-import { Image } from "@nextui-org/react";
+import { placeholder } from "@/const/placeholder";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { CaretLeftFill, CaretRightFill } from "react-bootstrap-icons";
+import isURL from "validator/lib/isURL";
 
 export default function LightBox({
   images,
@@ -59,6 +61,7 @@ export default function LightBox({
     <>
       {lightboxDisplay ? (
         <div
+          hidden={!lightboxDisplay}
           id="lightbox"
           className="fixed top-0 bottom-0 right-0 left-0 flex min-h-screen w-full flex-row items-center justify-between z-50"
           onClick={() => {
@@ -71,12 +74,25 @@ export default function LightBox({
               <CaretLeftFill />
             </p>
           </button>
-          <Image
-            radius="none"
-            alt="lightbox"
-            className="object-scale-down h-screen mx-auto px-2 py-2"
-            src={imageToShow}
-          />
+          <>
+            {images.map((image, index) => {
+              return (
+                <div
+                  key={image + index.toString()}
+                  className={`${imageToShow === image ? "block" : "hidden"}`}
+                >
+                  <Image
+                    width={1080}
+                    height={1080}
+                    alt="lightbox"
+                    className="object-scale-down h-screen mx-auto px-2 py-2"
+                    src={isURL(image) ? image : placeholder}
+                    loading="eager"
+                  />
+                </div>
+              );
+            })}
+          </>
           <button onClick={showNext} className="sm:px-6 px-1">
             <p className="font-medium md:text-6xl text-xl text-white">
               <CaretRightFill />

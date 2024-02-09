@@ -35,23 +35,23 @@ export default function CreateProduct({
       return;
     }
 
-    client.POST("/api/v1/products", {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-      body: {
-        name: create_product.name,
-        description: create_product?.description,
-        price: create_product?.price,
-        choices: create_product?.choices,
-        image: create_product?.image,
-        published_at: published_at ? new Date().toISOString() : undefined,
-      },
-    });
-    toast.success("เพิ่มสินค้าเรียบร้อยแล้ว", { position: "bottom-right" });
-    setTimeout(() => {
-      router.push("/admin/products");
-    }, 500);
+    client
+      .POST("/api/v1/products", {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+        body: {
+          name: create_product.name,
+          description: create_product?.description,
+          price: create_product?.price,
+          choices: create_product?.choices,
+          image: create_product?.image,
+          published_at: published_at ? new Date().toISOString() : undefined,
+        },
+      })
+      .then(() => {
+        toast.success("เพิ่มสินค้าเรียบร้อยแล้ว", { position: "bottom-right" });
+      });
   }
 
   return (
