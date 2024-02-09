@@ -49,15 +49,15 @@ export default function Product({
   thumbnailRef.current = product.image?.map(
     (element, i) => thumbnailRef.current[i] ?? createRef()
   );
-  const [thumbIndex, setThumbIndex] = useState<number>(0);
   const token = getCookie("shopping-jwt") as string | null;
   const [price, SetPrice] = useState<number>(-1);
   const [quantity, SetQuantity] = useState<number>(0);
   const [selectedChoice, SetSelectedChoice] = useState<string>("");
-  const [selectedImage, SetSelectedImage] = useState<string>(product.image[0]);
+  const [thumbIndex, setThumbIndex] = useState<number>(0);
   const [indexImgUrl, SetIndexImgUrl] = useState<string>(
     product.image?.length > 0 ? product.image[0] + "0" : ""
   );
+  const [selectedImage, SetSelectedImage] = useState<string>(product.image[0]);
   const [addinfo, SetAddinfo] = useState<string>("");
 
   const [openLightBox, setOpenLightBox] = useState<boolean>(false);
@@ -116,6 +116,17 @@ export default function Product({
     toast.success("เพิ่มสินค้าลงในตะกร้าแล้ว", { position: "bottom-right" });
   };
 
+  useEffect(() => {
+    if (width < 1280) {
+      imageRef.current[thumbIndex]?.current?.scrollIntoView({
+        inline: "center",
+        block: "nearest",
+      });
+    } else {
+      SetIndexImgUrl(product.image[thumbIndex] + thumbIndex.toString());
+    }
+  }, [thumbIndex]);
+
   const price_range =
     product.choices.length > 0
       ? calculatedChoicePrice(product.choices)
@@ -151,13 +162,13 @@ export default function Product({
               );
             })}
         </Breadcrumbs>
+        <LightBox
+          images={product.image}
+          display={openLightBox}
+          selectImage={selectedImage}
+          stateChanger={setOpenLightBox}
+        />
         <div className="grid xl:grid-cols-2">
-          <LightBox
-            images={product.image}
-            display={openLightBox}
-            selectImage={selectedImage}
-            stateChanger={setOpenLightBox}
-          />
           <div className="px-3 my-4 mx-auto max-w-[480px]">
             {product.image?.length > 0 ? (
               <>

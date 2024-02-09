@@ -266,6 +266,13 @@ export default function ProductForm({
             value={price?.toString()}
             type="number"
             onChange={(e) => setPrice(Number(e.target.value))}
+            onKeyDown={(e) => {
+              if (e.key === "." || e.key === "-") {
+                e.preventDefault();
+              }
+            }}
+            min={0}
+            max={200000000}
             endContent="บาท"
           />
           <small className="text-red-500">
@@ -396,6 +403,13 @@ export default function ProductForm({
                         onChange={(e) => {
                           setEditChoicePrice(+e.target.value);
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === "." || e.key === "-") {
+                            e.preventDefault();
+                          }
+                        }}
+                        min={0}
+                        max={200000000}
                         disabled={editChoice !== choice._id}
                       />
                     </TableCell>
@@ -475,6 +489,13 @@ export default function ProductForm({
             value={newChoicePrice?.toString()}
             onChange={(e) => setNewChoicePrice(+e.target.value)}
             type="number"
+            onKeyDown={(e) => {
+              if (e.key === "." || e.key === "-") {
+                e.preventDefault();
+              }
+            }}
+            min={0}
+            max={200000000}
             label={<p>ราคา</p>}
           />
         </div>

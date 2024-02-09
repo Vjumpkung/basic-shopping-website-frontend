@@ -86,6 +86,13 @@ export default function CreateChoice({
               value={choicePrice?.toString()}
               type="number"
               onChange={(e) => setChoicePrice(Number(e.target.value))}
+              onKeyDown={(e) => {
+                if (e.key === "." || e.key === "-") {
+                  e.preventDefault();
+                }
+              }}
+              min={0}
+              max={200000000}
               endContent="บาท"
             />
           </div>
