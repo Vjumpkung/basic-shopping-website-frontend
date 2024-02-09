@@ -9,6 +9,8 @@ import {
 import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
+import { Spinner } from "@nextui-org/react";
+import { useQuery } from "@tanstack/react-query";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
@@ -42,14 +44,20 @@ async function fetchProduct() {
     },
   });
 
-  return res;
+  return res.data as ProductAllResponseDto[] | undefined;
 }
 
 export default function Home({
-  products,
   settings,
   profile,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const { data, isFetched } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProduct,
+  });
+
+  const products = data as ProductAllResponseDto[];
+
   return (
     <UserLayout settings={settings} profile={profile}>
       <main>
@@ -58,56 +66,60 @@ export default function Home({
         </Head>
         <div className="w-5/6 mx-auto">
           <div className="flex flex-wrap justify-center">
-            {products?.map((product) => {
-              const price_range =
-                product.choices.length > 0
-                  ? calculatedChoicePrice(product.choices)
-                  : new priceRange(0, 0);
-              return (
-                <div key={product._id} className="">
-                  <Link href={`/product/${product._id}`} key={product._id}>
-                    <div key={product._id} className="my-2 mx-2 w-72">
-                      <Card className="py-2">
-                        <CardHeader className="pb-0 pt-2 px-4">
-                          {product.image.length > 0 ? (
-                            <div className="mx-auto">
-                              <Image
-                                className="object-scale-down max-h-52 h-full aspect-square"
-                                src={product.image[0]}
-                                alt={"รูปภาพนั่นแหล่ะ"}
-                                width={200}
-                                height={200}
-                              />
-                            </div>
-                          ) : (
-                            <div className="mx-auto">
-                              <Image
-                                className="object-scale-down max-h-52 h-full aspect-square"
-                                src={placeholder}
-                                width={200}
-                                height={200}
-                                alt={"รูปภาพนั่นแหล่ะ"}
-                              />
-                            </div>
-                          )}
-                        </CardHeader>
-                        <CardBody className="overflow-hidden py-2">
-                          <h4 className=" font-medium text-large truncate">
-                            {product.name}
-                          </h4>
-                          <p className="text-medium">
-                            {product.choices.length > 0
-                              ? `${price_range.min_price.toLocaleString()} - ${price_range.max_price.toLocaleString()}`
-                              : product.price.toLocaleString()}{" "}
-                            บาท
-                          </p>
-                        </CardBody>
-                      </Card>
-                    </div>
-                  </Link>
-                </div>
-              );
-            })}
+            {isFetched ? (
+              products?.map((product) => {
+                const price_range =
+                  product.choices.length > 0
+                    ? calculatedChoicePrice(product.choices)
+                    : new priceRange(0, 0);
+                return (
+                  <div key={product._id} className="">
+                    <Link href={`/product/${product._id}`} key={product._id}>
+                      <div key={product._id} className="my-2 mx-2 w-72">
+                        <Card className="py-2">
+                          <CardHeader className="pb-0 pt-2 px-4">
+                            {product.image.length > 0 ? (
+                              <div className="mx-auto">
+                                <Image
+                                  className="object-scale-down max-h-52 h-full aspect-square"
+                                  src={product.image[0]}
+                                  alt={"รูปภาพนั่นแหล่ะ"}
+                                  width={200}
+                                  height={200}
+                                />
+                              </div>
+                            ) : (
+                              <div className="mx-auto">
+                                <Image
+                                  className="object-scale-down max-h-52 h-full aspect-square"
+                                  src={placeholder}
+                                  width={200}
+                                  height={200}
+                                  alt={"รูปภาพนั่นแหล่ะ"}
+                                />
+                              </div>
+                            )}
+                          </CardHeader>
+                          <CardBody className="overflow-hidden py-2">
+                            <h4 className=" font-medium text-large truncate">
+                              {product.name}
+                            </h4>
+                            <p className="text-medium">
+                              {product.choices.length > 0
+                                ? `${price_range.min_price.toLocaleString()} - ${price_range.max_price.toLocaleString()}`
+                                : product.price.toLocaleString()}{" "}
+                              บาท
+                            </p>
+                          </CardBody>
+                        </Card>
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })
+            ) : (
+              <Spinner />
+            )}
           </div>
         </div>
       </main>
@@ -122,14 +134,12 @@ export async function getServerSideProps({ req, res }: { req: any; res: any }) {
 
   const { data } = await client.GET("/api/v1/settings");
   const fetchProducts = await fetchProduct();
-  const products = fetchProducts.data as ProductAllResponseDto[] | undefined;
   const settings = data as settingsSchema;
   const shopping_jwt = getCookie("shopping-jwt", { req, res }) as string | null;
   const profile = await getProfile(shopping_jwt);
 
   return {
     props: {
-      products,
       settings,
       profile,
     },
