@@ -1,15 +1,49 @@
 import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
-import { settingsSchema } from "@/types/swagger.types";
+import { OrdersAllResponseDto, settingsSchema } from "@/types/swagger.types";
 import apiCheck from "@/utils/apicheck";
+import { OrderStatusTH, chipStatusColor } from "@/utils/orders_status";
 import { getProfile } from "@/utils/profile";
+import {
+  Chip,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from "@nextui-org/react";
+import { useQuery } from "@tanstack/react-query";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import { PencilSquare } from "react-bootstrap-icons";
+
+const getOrders = async (shopping_jwt: string) => {
+  const res = await client.GET("/api/v1/orders", {
+    headers: {
+      authorization: `Bearer ${shopping_jwt}`,
+    },
+  });
+  return res.data;
+};
 
 export default function ManageOrders({
   settings,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const shopping_jwt = getCookie("shopping-jwt") as string;
+
+  const { data } = useQuery({
+    queryKey: [],
+    queryFn: () => getOrders(shopping_jwt),
+  });
+
+  const orders = data;
+
+  const router = useRouter();
+
   return (
     <AdminLayout settings={settings}>
       <Head>
@@ -17,12 +51,54 @@ export default function ManageOrders({
       </Head>
       <main>
         <div className="flex flex-row">
-          <div>
+          <div className="flex-none">
             <p className="text-2xl font-semibold">จัดการออเดอร์ทั้งหมด</p>
           </div>
         </div>
-        <div>
-          <p>Work in progress...</p>
+        <div className="mt-6">
+          <Table aria-label="all orders">
+            <TableHeader>
+              <TableColumn>ผู้ใช้</TableColumn>
+              <TableColumn>สินค้าที่สั่ง</TableColumn>
+              <TableColumn>ราคารวม</TableColumn>
+              <TableColumn>สถานะ</TableColumn>
+              <TableColumn>วันที่สั่งซื้อ</TableColumn>
+              <TableColumn>ปรับสถานะ</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {orders?.map((order: OrdersAllResponseDto) => (
+                <TableRow key={order._id}>
+                  <TableCell>{order.user.username}</TableCell>
+                  <TableCell>{order.shopping_cart.length}</TableCell>
+                  <TableCell width={120}>
+                    {order.total_price.toLocaleString()} บาท
+                  </TableCell>
+                  <TableCell width={120}>
+                    <Chip radius="sm" color={chipStatusColor(order.status)}>
+                      {OrderStatusTH(order.status)}
+                    </Chip>
+                  </TableCell>
+                  <TableCell width={200}>
+                    {new Date(order.created_at).toLocaleDateString("th-TH", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}{" "}
+                    {new Date(order.created_at).toLocaleTimeString("th-TH")}
+                  </TableCell>
+                  <TableCell width={60}>
+                    <button
+                      onClick={() =>
+                        router.push(`/admin/orders/edit?id=${order._id}`)
+                      }
+                    >
+                      <PencilSquare />
+                    </button>
+                  </TableCell>
+                </TableRow>
+              )) || []}
+            </TableBody>
+          </Table>
         </div>
       </main>
     </AdminLayout>

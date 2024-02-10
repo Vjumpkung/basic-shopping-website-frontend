@@ -38,7 +38,13 @@ export interface paths {
     /** Require USER */
     post: operations["OrdersController_createOrder"];
   };
-  "/api/v1/orders/user": {
+  "/api/v1/orders/{id}": {
+    /** Require ADMIN */
+    get: operations["OrdersController_getOrderById"];
+    /** Require ADMIN */
+    delete: operations["OrdersController_deleteOrder"];
+  };
+  "/api/v1/orders/user/id": {
     /** Require USER */
     get: operations["OrdersController_getOrdersByUserId"];
   };
@@ -70,10 +76,6 @@ export interface paths {
     /** Require ADMIN */
     patch: operations["OrdersController_editTracking"];
   };
-  "/api/v1/orders/{id}": {
-    /** Require ADMIN */
-    delete: operations["OrdersController_deleteOrder"];
-  };
   "/api/v1/shopping-cart/user": {
     /** Require USER */
     get: operations["ShoppingCartController_getCart"];
@@ -92,6 +94,24 @@ export interface paths {
   };
   "/api/v1/shippings": {
     get: operations["ShippingsController_getAllShippings"];
+  };
+  "/api/v1/addresses": {
+    /** Requier USER */
+    get: operations["AddressesController_getAddresses"];
+    /** Requier USER */
+    post: operations["AddressesController_createAddress"];
+  };
+  "/api/v1/addresses/default": {
+    /** Requier USER */
+    get: operations["AddressesController_getDefaultAddress"];
+  };
+  "/api/v1/addresses/{id}": {
+    /** Requier USER */
+    get: operations["AddressesController_getAddressById"];
+    /** Requier USER */
+    delete: operations["AddressesController_deleteAddress"];
+    /** Requier USER */
+    patch: operations["AddressesController_updateAddress"];
   };
   "/api/v1/users": {
     /** Require ADMIN */
@@ -155,24 +175,6 @@ export interface paths {
   "/api/v1/slips/{id}": {
     /** Require ADMIN */
     delete: operations["SlipsController_deleteSlip"];
-  };
-  "/api/v1/addresses": {
-    /** Requier USER */
-    get: operations["AddressesController_getAddresses"];
-    /** Requier USER */
-    post: operations["AddressesController_createAddress"];
-  };
-  "/api/v1/addresses/default": {
-    /** Requier USER */
-    get: operations["AddressesController_getDefaultAddress"];
-  };
-  "/api/v1/addresses/{id}": {
-    /** Requier USER */
-    get: operations["AddressesController_getAddressById"];
-    /** Requier USER */
-    delete: operations["AddressesController_deleteAddress"];
-    /** Requier USER */
-    patch: operations["AddressesController_updateAddress"];
   };
 }
 
@@ -315,6 +317,27 @@ export interface components {
       /** @description Product price */
       price?: number;
     };
+    UserResponseDto: {
+      /** @description user id */
+      _id: string;
+      /** @description username */
+      username: string;
+      /**
+       * @description user role
+       * @enum {number}
+       */
+      role: 100 | 1;
+      /**
+       * Format: date-time
+       * @description user created at
+       */
+      created_at: string;
+      /**
+       * Format: date-time
+       * @description user deleted date
+       */
+      deleted_at: string;
+    };
     addressSchema: {
       /** @description address id */
       _id: string;
@@ -372,13 +395,15 @@ export interface components {
       /** @description shipping tracking url */
       tracking_url: string;
     };
-    orderSchema: {
+    OrdersAllResponseDto: {
       /** @description order id */
       _id: string;
       /** @description user id */
-      user: string;
-      /** @description address id */
+      user: components["schemas"]["UserResponseDto"];
+      /** @description address */
       address: components["schemas"]["addressSchema"];
+      /** @description additional info */
+      additional_info: string;
       /** @description array of shopping cart id */
       shopping_cart: components["schemas"]["CartResponseDto"][];
       /** @description total price */
@@ -388,8 +413,44 @@ export interface components {
        * @enum {string}
        */
       status: "MUST_BE_PAID" | "MUST_BE_SHIPPED" | "MUST_BE_RECEIVED" | "COMPLETED" | "CANCELLED" | "REFUNDED";
+      /** @description shipping id */
+      shipping: components["schemas"]["shippingSchema"] | null;
+      /**
+       * Format: date-time
+       * @description order created date
+       */
+      created_at: string;
+      /**
+       * Format: date-time
+       * @description order cancelled date
+       */
+      cancelled_at: string | null;
+      /** @description cancelled reason */
+      cancelled_reason: string | null;
+      /**
+       * Format: date-time
+       * @description order deleted date
+       */
+      deleted_at: string | null;
+    };
+    OrderResponseDto: {
+      /** @description order id */
+      _id: string;
+      /** @description user id */
+      user: components["schemas"]["UserResponseDto"];
+      /** @description address */
+      address: components["schemas"]["addressSchema"];
       /** @description additional info */
       additional_info: string;
+      /** @description array of shopping cart id */
+      shopping_cart: components["schemas"]["CartResponseDto"][];
+      /** @description total price */
+      total_price: number;
+      /**
+       * @description Order status
+       * @enum {string}
+       */
+      status: "MUST_BE_PAID" | "MUST_BE_SHIPPED" | "MUST_BE_RECEIVED" | "COMPLETED" | "CANCELLED" | "REFUNDED";
       /** @description shipping id */
       shipping: components["schemas"]["shippingSchema"] | null;
       /**
@@ -456,6 +517,44 @@ export interface components {
       /** @description address id */
       address: string;
     };
+    orderSchema: {
+      /** @description order id */
+      _id: string;
+      /** @description user id */
+      user: string;
+      /** @description address id */
+      address: components["schemas"]["addressSchema"];
+      /** @description array of shopping cart id */
+      shopping_cart: components["schemas"]["CartResponseDto"][];
+      /** @description total price */
+      total_price: number;
+      /**
+       * @description Order status
+       * @enum {string}
+       */
+      status: "MUST_BE_PAID" | "MUST_BE_SHIPPED" | "MUST_BE_RECEIVED" | "COMPLETED" | "CANCELLED" | "REFUNDED";
+      /** @description additional info */
+      additional_info: string;
+      /** @description shipping id */
+      shipping: components["schemas"]["shippingSchema"] | null;
+      /**
+       * Format: date-time
+       * @description order created date
+       */
+      created_at: string;
+      /**
+       * Format: date-time
+       * @description order cancelled date
+       */
+      cancelled_at: string | null;
+      /** @description cancelled reason */
+      cancelled_reason: string | null;
+      /**
+       * Format: date-time
+       * @description order deleted date
+       */
+      deleted_at: string | null;
+    };
     ShippingCreateDto: {
       /** @description shipping provider */
       provider: string;
@@ -484,28 +583,25 @@ export interface components {
       /** @description Amount of product */
       amount?: number;
     };
-    userSchema: {
-      /** @description user id */
-      _id: string;
-      /** @description username */
-      username: string;
-      /** @description password */
-      password: string;
-      /**
-       * @description user role
-       * @enum {number}
-       */
-      role: 100 | 1;
-      /**
-       * Format: date-time
-       * @description user created at
-       */
-      created_at: string;
-      /**
-       * Format: date-time
-       * @description user deleted date
-       */
-      deleted_at: string;
+    AddressCreateDto: {
+      /** @description title */
+      title: string;
+      /** @description address */
+      address: string;
+      /** @description telephone number */
+      telephone: string;
+      /** @description set as default address */
+      default?: boolean;
+    };
+    AddressUpdateDto: {
+      /** @description title */
+      title?: string;
+      /** @description address */
+      address?: string;
+      /** @description telephone number */
+      telephone?: string;
+      /** @description set as default address */
+      default?: boolean;
     };
     UserCreateDto: {
       /** @description Username */
@@ -619,26 +715,6 @@ export interface components {
       additional_info?: string;
       /** Format: date-time */
       transfer_date: string;
-    };
-    AddressCreateDto: {
-      /** @description title */
-      title: string;
-      /** @description address */
-      address: string;
-      /** @description telephone number */
-      telephone: string;
-      /** @description set as default address */
-      default?: boolean;
-    };
-    AddressUpdateDto: {
-      /** @description title */
-      title?: string;
-      /** @description address */
-      address?: string;
-      /** @description telephone number */
-      telephone?: string;
-      /** @description set as default address */
-      default?: boolean;
     };
   };
   responses: never;
@@ -791,7 +867,7 @@ export interface operations {
       /** @description Get all orders */
       200: {
         content: {
-          "application/json": components["schemas"]["orderSchema"][];
+          "application/json": components["schemas"]["OrdersAllResponseDto"][];
         };
       };
     };
@@ -809,6 +885,36 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["orderSchema"];
         };
+      };
+    };
+  };
+  /** Require ADMIN */
+  OrdersController_getOrderById: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Get order by id */
+      200: {
+        content: {
+          "application/json": components["schemas"]["OrderResponseDto"];
+        };
+      };
+    };
+  };
+  /** Require ADMIN */
+  OrdersController_deleteOrder: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description DELETE order */
+      204: {
+        content: never;
       };
     };
   };
@@ -936,20 +1042,6 @@ export interface operations {
       };
     };
   };
-  /** Require ADMIN */
-  OrdersController_deleteOrder: {
-    parameters: {
-      path: {
-        id: string;
-      };
-    };
-    responses: {
-      /** @description DELETE order */
-      204: {
-        content: never;
-      };
-    };
-  };
   /** Require USER */
   ShoppingCartController_getCart: {
     responses: {
@@ -1019,13 +1111,103 @@ export interface operations {
       };
     };
   };
+  /** Requier USER */
+  AddressesController_getAddresses: {
+    responses: {
+      /** @description Get addresses */
+      200: {
+        content: {
+          "application/json": components["schemas"]["addressSchema"][];
+        };
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_createAddress: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddressCreateDto"];
+      };
+    };
+    responses: {
+      /** @description address created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["addressSchema"];
+        };
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_getDefaultAddress: {
+    responses: {
+      /** @description Get addresses */
+      200: {
+        content: {
+          "application/json": components["schemas"]["addressSchema"];
+        };
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_getAddressById: {
+    parameters: {
+      path: {
+        /** @description address id */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Get address by id */
+      200: {
+        content: {
+          "application/json": components["schemas"]["addressSchema"];
+        };
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_deleteAddress: {
+    parameters: {
+      path: {
+        /** @description address id */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description address deleted */
+      204: {
+        content: never;
+      };
+    };
+  };
+  /** Requier USER */
+  AddressesController_updateAddress: {
+    parameters: {
+      path: {
+        /** @description address id */
+        id: string;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddressUpdateDto"];
+      };
+    };
+    responses: {
+      /** @description address updated */
+      204: {
+        content: never;
+      };
+    };
+  };
   /** Require ADMIN */
   UsersController_getUsers: {
     responses: {
       /** @description get users */
       200: {
         content: {
-          "application/json": components["schemas"]["userSchema"][];
+          "application/json": components["schemas"]["UserResponseDto"][];
         };
       };
     };
@@ -1295,96 +1477,6 @@ export interface operations {
     };
     responses: {
       /** @description delete slip */
-      204: {
-        content: never;
-      };
-    };
-  };
-  /** Requier USER */
-  AddressesController_getAddresses: {
-    responses: {
-      /** @description Get addresses */
-      200: {
-        content: {
-          "application/json": components["schemas"]["addressSchema"][];
-        };
-      };
-    };
-  };
-  /** Requier USER */
-  AddressesController_createAddress: {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["AddressCreateDto"];
-      };
-    };
-    responses: {
-      /** @description address created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["addressSchema"];
-        };
-      };
-    };
-  };
-  /** Requier USER */
-  AddressesController_getDefaultAddress: {
-    responses: {
-      /** @description Get addresses */
-      200: {
-        content: {
-          "application/json": components["schemas"]["addressSchema"];
-        };
-      };
-    };
-  };
-  /** Requier USER */
-  AddressesController_getAddressById: {
-    parameters: {
-      path: {
-        /** @description address id */
-        id: string;
-      };
-    };
-    responses: {
-      /** @description Get address by id */
-      200: {
-        content: {
-          "application/json": components["schemas"]["addressSchema"];
-        };
-      };
-    };
-  };
-  /** Requier USER */
-  AddressesController_deleteAddress: {
-    parameters: {
-      path: {
-        /** @description address id */
-        id: string;
-      };
-    };
-    responses: {
-      /** @description address deleted */
-      204: {
-        content: never;
-      };
-    };
-  };
-  /** Requier USER */
-  AddressesController_updateAddress: {
-    parameters: {
-      path: {
-        /** @description address id */
-        id: string;
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["AddressUpdateDto"];
-      };
-    };
-    responses: {
-      /** @description address updated */
       204: {
         content: never;
       };

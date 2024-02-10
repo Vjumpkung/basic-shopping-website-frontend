@@ -36,15 +36,8 @@ import {
   PencilSquare,
   TrashFill,
 } from "react-bootstrap-icons";
-import Markdown from "react-markdown";
 import { toast } from "react-toastify";
-import rehypeHighlight from "rehype-highlight";
-import rehypeRaw from "rehype-raw";
-import rehypeSanitize from "rehype-sanitize";
-import remarkGfm from "remark-gfm";
-import remarkToc from "remark-toc";
 import isURL from "validator/lib/isURL";
-import emoji from "remark-emoji";
 
 export default function ProductForm({
   product_res,

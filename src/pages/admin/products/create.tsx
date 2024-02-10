@@ -51,6 +51,7 @@ export default function CreateProduct({
       })
       .then(() => {
         toast.success("เพิ่มสินค้าเรียบร้อยแล้ว", { position: "bottom-right" });
+        router.push("/admin/products");
       });
   }
 

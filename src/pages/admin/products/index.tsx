@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
+import { useQuery } from "@tanstack/react-query";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
@@ -23,12 +24,27 @@ import { useState } from "react";
 import { PencilSquare } from "react-bootstrap-icons";
 import isURL from "validator/lib/isURL";
 
+async function fetchAllProducts() {
+  const products = await client.GET("/api/v1/products", {
+    params: {
+      query: {
+        status: "all",
+      },
+    },
+  });
+  return products.data as ProductAllResponseDto[] | undefined;
+}
+
 export default function AllProducts({
   settings,
-  products,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const [showAll, setShowAll] = useState<boolean>(true);
+  const { data } = useQuery({
+    queryKey: ["all-products"],
+    queryFn: fetchAllProducts,
+  });
+  const products = data as ProductAllResponseDto[];
 
   return (
     <AdminLayout settings={settings}>
@@ -40,7 +56,7 @@ export default function AllProducts({
           <h1 className="text-2xl font-semibold">สินค้าทั้งหมด</h1>
         </div>
         <div className="ml-auto">
-          <div className="flex flex-row gap-3">
+          <div className="flex flex-row gap-3 justify-end">
             <div className="flex flex-row">
               <div className="self-center">
                 <span className={`${showAll ? "text-gray-400" : "text-black"}`}>
@@ -82,55 +98,50 @@ export default function AllProducts({
             <TableColumn>แก้ไข</TableColumn>
           </TableHeader>
           <TableBody>
-            {products
-              ?.filter((product) => {
-                if (showAll) {
-                  return product;
-                } else {
-                  return product.published_at === null;
-                }
-              })
-              ?.map((product) => {
-                return (
-                  <TableRow key={product._id}>
-                    <TableCell>
-                      <div className="max-w-md">
-                        <p className="truncate">{product.name}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell width={80}>
-                      <Image
-                        src={
-                          product.image.length > 0
-                            ? isURL(product.image[0])
-                              ? product.image[0]
-                              : placeholder
+            {products?.map((product) => {
+              return (
+                <TableRow
+                  key={product._id}
+                  hidden={showAll ? false : product.published_at !== null}
+                >
+                  <TableCell>
+                    <div className="max-w-md">
+                      <p className="truncate">{product.name}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell width={80}>
+                    <Image
+                      src={
+                        product.image.length > 0
+                          ? isURL(product.image[0])
+                            ? product.image[0]
                             : placeholder
-                        }
-                        alt={product.name}
-                        width={80}
-                        height={80}
-                        className="aspect-square object-cover"
-                      />
-                    </TableCell>
-                    <TableCell width={70}>
-                      {product.isAvailable ? "มีสินค้า" : "หมด"}
-                    </TableCell>
-                    <TableCell width={70}>
-                      {product.published_at !== null ? "เผยแพร่" : "แบบร่าง"}
-                    </TableCell>
-                    <TableCell width={20}>
-                      <button
-                        onClick={() =>
-                          router.push(`/admin/products/edit?id=${product._id}`)
-                        }
-                      >
-                        <PencilSquare className="mt-1" />
-                      </button>
-                    </TableCell>
-                  </TableRow>
-                );
-              }) || []}
+                          : placeholder
+                      }
+                      alt={product.name}
+                      width={80}
+                      height={80}
+                      className="aspect-square object-cover"
+                    />
+                  </TableCell>
+                  <TableCell width={70}>
+                    {product.isAvailable ? "มีสินค้า" : "หมด"}
+                  </TableCell>
+                  <TableCell width={70}>
+                    {product.published_at !== null ? "เผยแพร่" : "แบบร่าง"}
+                  </TableCell>
+                  <TableCell width={20}>
+                    <button
+                      onClick={() =>
+                        router.push(`/admin/products/edit?id=${product._id}`)
+                      }
+                    >
+                      <PencilSquare className="mt-1" />
+                    </button>
+                  </TableCell>
+                </TableRow>
+              );
+            }) || []}
           </TableBody>
         </Table>
       </div>
@@ -160,18 +171,9 @@ export async function getServerSideProps(ctx: any) {
       };
     }
 
-    const products = await client.GET("/api/v1/products", {
-      params: {
-        query: {
-          status: "all",
-        },
-      },
-    });
-
     return {
       props: {
         settings,
-        products: (products.data as ProductAllResponseDto[] | undefined) || [],
       },
     };
   } else {

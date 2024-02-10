@@ -5,7 +5,7 @@ import { EyeSlashFilledIcon } from "@/components/EyeSlashFilledIcon";
 import {
   UserCreateDto,
   settingsSchema,
-  userSchama,
+  UserResponseDto,
 } from "@/types/swagger.types";
 import apiCheck from "@/utils/apicheck";
 import { getProfile } from "@/utils/profile";
@@ -42,7 +42,7 @@ export default function ManageAccounts({
   allUsers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const token = getCookie("shopping-jwt");
-  const [users, setUsers] = useState<userSchama[]>(allUsers);
+  const [users, setUsers] = useState<UserResponseDto[]>(allUsers);
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [selectRole, setSelectRole] = useState<string>("");
   const [isEditRoleOpen, setIsEditRoleOpen] = useState<boolean>(false);
@@ -76,7 +76,7 @@ export default function ManageAccounts({
             },
           })
           .then((res) => {
-            setUsers(res.data as userSchama[]);
+            setUsers(res.data as UserResponseDto[]);
           });
         toast.success("ลบบัญชีผู้ใช้เรียบร้อยแล้ว", {
           position: "bottom-right",
@@ -109,7 +109,7 @@ export default function ManageAccounts({
             },
           })
           .then((res) => {
-            setUsers(res.data as userSchama[]);
+            setUsers(res.data as UserResponseDto[]);
           });
         toast.success("บันทึกข้อมูลเรียบร้อยแล้ว", {
           position: "bottom-right",
@@ -155,7 +155,7 @@ export default function ManageAccounts({
               },
             })
             .then((res) => {
-              setUsers(res.data as userSchama[]);
+              setUsers(res.data as UserResponseDto[]);
             });
           toast.success("เพิ่มผู้ใช้เรียบร้อยแล้ว", {
             position: "bottom-right",
@@ -492,7 +492,7 @@ export async function getServerSideProps(ctx: any) {
         Authorization: `Bearer ${shopping_jwt}`,
       },
     })
-  ).data as userSchama[];
+  ).data as UserResponseDto[];
 
   if (shopping_jwt) {
     if (profile?.role !== 100) {

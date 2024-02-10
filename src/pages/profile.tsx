@@ -6,6 +6,7 @@ import {
   settingsSchema,
 } from "@/types/swagger.types";
 import apiCheck from "@/utils/apicheck";
+import { OrderStatus } from "@/utils/orders_status";
 import { getProfile } from "@/utils/profile";
 import {
   Avatar,
@@ -22,21 +23,13 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
+import { useQuery } from "@tanstack/react-query";
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-
-enum OrderStatus {
-  MUST_BE_PAID = "รอการชำระเงิน",
-  MUST_BE_SHIPPED = "รอการจัดส่ง",
-  MUST_BE_RECEIVED = "รอการรับสินค้า",
-  COMPLETED = "สำเร็จ",
-  CANCELED = "ยกเลิก",
-  REFUNDED = "คืนเงิน",
-}
 
 function OrderStatusTH(status: string) {
   if (status === "MUST_BE_PAID") {
@@ -51,8 +44,8 @@ function OrderStatusTH(status: string) {
   if (status === "COMPLETED") {
     return OrderStatus.COMPLETED;
   }
-  if (status === "CANCELED") {
-    return OrderStatus.CANCELED;
+  if (status === "CANCELLED") {
+    return OrderStatus.CANCELLED;
   }
   if (status === "REFUNDED") {
     return OrderStatus.REFUNDED;
@@ -72,7 +65,7 @@ function chipStatusColor(status: string) {
   if (status === "COMPLETED") {
     return "success";
   }
-  if (status === "CANCELED") {
+  if (status === "CANCELLED") {
     return "danger";
   }
   if (status === "REFUNDED") {
@@ -81,7 +74,7 @@ function chipStatusColor(status: string) {
 }
 
 async function getUserOrders(token: string) {
-  const { data } = await client.GET("/api/v1/orders/user", {
+  const { data } = await client.GET("/api/v1/orders/user/id", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -93,13 +86,15 @@ async function getUserOrders(token: string) {
 export default function Profile({
   settings,
   profile,
-  orders,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [me, setMe] = useState<ProfileResponseDto | undefined | null>(profile);
   const [selectedAddress, setSelectedAddress] = useState<string | undefined>();
-  const [recentOrders, setRecentOrders] = useState<
-    OrdersByUserIdResponseDto[] | undefined
-  >(orders);
+  const token = getCookie("shopping-jwt") as string;
+  const { data } = useQuery({
+    queryKey: ["userOrders"],
+    queryFn: () => getUserOrders(token),
+  });
+  const recentOrders = data as Array<OrdersByUserIdResponseDto>;
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   return (
@@ -222,7 +217,11 @@ export default function Profile({
                         <p className="text-right text-md">
                           หมายเลขพัสดุ : {order.shipping.tracking_number}
                         </p>
-                        <a href={order.shipping.tracking_url}>
+                        <a
+                          href={order.shipping.tracking_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <p className="text-right text-md hover:text-blue-700 text-blue-500">
                             ติดตามพัสดุ
                           </p>
@@ -261,6 +260,15 @@ export default function Profile({
                     </div>
                   </CardBody>
                   <CardFooter className="flex flex-col">
+                    {order.status === "CANCELLED" ||
+                    order.status === "REFUNDED" ? (
+                      <div className="self-start flex-grow">
+                        <p className="text-lg">เหตุผลที่ยกเลิก</p>
+                        <p className="text-md text-red-500">
+                          {order.cancelled_reason}
+                        </p>
+                      </div>
+                    ) : null}
                     <div className="self-start flex-grow">
                       <p className="text-lg">รายละเอียดเพิ่มเติม</p>
                       <p>{order.additional_info}</p>
@@ -294,12 +302,10 @@ export async function getServerSideProps({ req, res }: { req: any; res: any }) {
 
   if (shopping_jwt) {
     const profile = await getProfile(shopping_jwt);
-    const orders = await getUserOrders(shopping_jwt);
     return {
       props: {
         settings,
         profile,
-        orders,
       },
     };
   } else {
