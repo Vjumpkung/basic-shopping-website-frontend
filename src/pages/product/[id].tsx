@@ -21,7 +21,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createRef, useEffect, useRef, useState } from "react";
-import { CaretLeftFill, CaretRightFill } from "react-bootstrap-icons";
+import {
+  CaretLeftFill,
+  CaretRightFill,
+  Dash,
+  Plus,
+} from "react-bootstrap-icons";
 import Markdown from "react-markdown";
 import { toast } from "react-toastify";
 import rehypeHighlight from "rehype-highlight";
@@ -183,6 +188,7 @@ export default function Product({
                               : placeholder + index.toString()
                           }
                           className="snap-center snap-always w-fit max-w-[460px] h-full max-h-[460px] flex-none"
+                          ref={imageRef.current[index]}
                         >
                           <Image
                             className="object-contain my-auto h-full aspect-square"
@@ -209,10 +215,9 @@ export default function Product({
                           }
                           className={`flex flex-grow ${
                             indexImgUrl === image + index.toString()
-                              ? ""
+                              ? "block"
                               : "hidden"
                           }`}
-                          ref={imageRef.current[index]}
                         >
                           <button
                             className=""
@@ -265,12 +270,6 @@ export default function Product({
                                 );
                               } else {
                                 SetSelectedImage(image);
-                                imageRef.current[
-                                  index
-                                ]?.current?.scrollIntoView({
-                                  inline: "center",
-                                  block: "nearest",
-                                });
                               }
                             }}
                             onClick={() => {
@@ -362,21 +361,7 @@ export default function Product({
                   onClick={() => SetQuantity(quantity > 0 ? quantity - 1 : 0)}
                   className="bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-3 h-11 focus:ring-gray-100 focus:ring-2 focus:outline-none"
                 >
-                  <svg
-                    className="w-3 h-3 text-gray-900"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 18 2"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M1 1h16"
-                    />
-                  </svg>
+                  <Dash />
                 </button>
                 <input
                   type="text"
@@ -384,30 +369,31 @@ export default function Product({
                   placeholder="0"
                   value={quantity}
                   onChange={(e) => {
-                    SetQuantity(+e.target.value);
+                    SetQuantity(
+                      Math.max(1, Math.min(100, Number(+e.target.value)))
+                    );
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "." || e.key === "-") {
+                      e.preventDefault();
+                    }
                   }}
                   required
                 />
                 <button
                   type="button"
-                  onClick={() => SetQuantity(quantity + 1)}
+                  onClick={() =>
+                    SetQuantity(
+                      quantity < 100
+                        ? quantity + 1
+                        : quantity > 100
+                        ? 100
+                        : quantity
+                    )
+                  }
                   className="bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-3 h-11 focus:ring-gray-100 focus:ring-2 focus:outline-none"
                 >
-                  <svg
-                    className="w-3 h-3 text-gray-900"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 18 18"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 1v16M1 9h16"
-                    />
-                  </svg>
+                  <Plus />
                 </button>
               </div>
             </div>
