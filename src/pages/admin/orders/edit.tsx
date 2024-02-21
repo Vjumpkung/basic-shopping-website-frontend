@@ -2,10 +2,20 @@ import client from "@/api/client";
 import AdminLayout from "@/components/AdminLayout";
 import { settingsSchema } from "@/types/swagger.types";
 import apiCheck from "@/utils/apicheck";
-import { OrderStatus } from "@/utils/orders_status";
+import {
+  OrderStatus,
+  OrderStatusTH,
+  chipStatusColor,
+} from "@/utils/orders_status";
 import { getProfile } from "@/utils/profile";
 import {
   Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Chip,
+  Divider,
   Input,
   Popover,
   PopoverContent,
@@ -16,6 +26,8 @@ import {
 import { getCookie } from "cookies-next";
 import { InferGetServerSidePropsType } from "next";
 import Head from "next/head";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { use, useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -221,7 +233,7 @@ export default function EditOrder({
                     onDelete();
                   }}
                 >
-                  ลบสินค้า
+                  ลบออเดอร์
                 </Button>
               </div>
             </PopoverContent>
@@ -244,6 +256,132 @@ export default function EditOrder({
           >
             ยืนยันการแก้ไขออเดอร์
           </Button>
+        </div>
+      </div>
+      <div className="flex flex-col mt-2">
+        <div>
+          <p className="text-lg">รายละเอียดออเดอร์</p>
+        </div>
+        <div>
+          <Card className="w-full mx-auto px-1">
+            <CardHeader>
+              <div className="flex flex-row">
+                <div className="flex-grow">
+                  <p>
+                    วันที่ :{" "}
+                    {new Date(order?.created_at as string).toLocaleDateString(
+                      "th-TH",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )}
+                  </p>
+                  <p>
+                    เวลา :{" "}
+                    {new Date(order?.created_at as string).toLocaleTimeString(
+                      "th-TH"
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-grow justify-end">
+                <div>
+                  <Chip
+                    radius="sm"
+                    color={chipStatusColor(order?.status as OrderStatus)}
+                  >
+                    {OrderStatusTH(order?.status as OrderStatus)}
+                  </Chip>
+                </div>
+              </div>
+            </CardHeader>
+            <Divider />
+            <CardBody>
+              {order?.shopping_cart.map((item) => {
+                return (
+                  <div key={item._id} className="flex flex-col py-2">
+                    <div>
+                      <Image
+                        src={item.product.image[0]}
+                        width={80}
+                        height={80}
+                        alt={"รูปภาพนั่นแหล่ะ"}
+                        className="object-cover h-auto"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="flex-none">
+                      <p className="text-clip truncate text-lg">
+                        {item.product.name}
+                      </p>
+                      {item.choice ? (
+                        <p className="text-gray-500">
+                          <span className="font-medium">ตัวเลือก</span> :{" "}
+                          {item.choice.name}
+                        </p>
+                      ) : null}
+                      <p className="font-semibold">
+                        {item.choice
+                          ? item.choice.price.toLocaleString()
+                          : item.product.price.toLocaleString()}{" "}
+                        บาท
+                      </p>
+                      <p>x{item.amount}</p>
+                      {item.additional_info ? (
+                        <p>ข้อมูลเพิ่มเติม : {" " + item.additional_info}</p>
+                      ) : null}
+                      <p className="text-right text-lg">
+                        {item.total_price.toLocaleString()} บาท
+                      </p>
+                    </div>
+                    <Divider />
+                  </div>
+                );
+              })}
+              {order?.shipping ? (
+                <div>
+                  <p className="text-right text-md">
+                    บริการขนส่ง : {order.shipping.provider}
+                  </p>
+                  <p className="text-right text-md">
+                    หมายเลขพัสดุ : {order.shipping.tracking_number}
+                  </p>
+                  <a
+                    href={order.shipping.tracking_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <p className="text-right text-md hover:text-blue-700 text-blue-500">
+                      ติดตามพัสดุ
+                    </p>
+                  </a>
+                </div>
+              ) : null}
+            </CardBody>
+            <CardFooter>
+              <div className="w-full">
+                <div className="flex flex-col justify-end">
+                  <div className="self-end flex-grow">
+                    <p className="text-lg font-semibold">
+                      ราคารวม : {order?.total_price.toLocaleString()} บาท
+                    </p>
+                  </div>
+                  <Divider />
+                  <div className="self-end flex-grow">
+                    <p className="text-lg">ที่อยู่สำหรับจัดส่ง</p>
+                  </div>
+                  <div className="self-end flex-grow">
+                    <p className="text-end">
+                      {order?.address.title + " " + order?.address.telephone}
+                    </p>
+                    <p className="text-end">{order?.address.address}</p>
+                  </div>
+                </div>
+              </div>
+            </CardFooter>
+          </Card>
         </div>
       </div>
       <div className="flex flex-col mt-2">

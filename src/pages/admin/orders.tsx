@@ -69,14 +69,26 @@ export default function ManageOrders({
               {orders?.map((order: OrdersAllResponseDto) => (
                 <TableRow key={order._id}>
                   <TableCell>{order.user.username}</TableCell>
-                  <TableCell>{order.shopping_cart.length}</TableCell>
-                  <TableCell width={120}>
+                  <TableCell>
+                    <div className="max-w-md">
+                      <p className="truncate">
+                        {order.shopping_cart
+                          .map((cart) => {
+                            return cart.product.name;
+                          })
+                          .join(", ")}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell width={150}>
                     {order.total_price.toLocaleString()} บาท
                   </TableCell>
                   <TableCell width={120}>
-                    <Chip radius="sm" color={chipStatusColor(order.status)}>
-                      {OrderStatusTH(order.status)}
-                    </Chip>
+                    <div className="flex justify-center">
+                      <Chip radius="sm" color={chipStatusColor(order.status)}>
+                        {OrderStatusTH(order.status)}
+                      </Chip>
+                    </div>
                   </TableCell>
                   <TableCell width={200}>
                     {new Date(order.created_at).toLocaleDateString("th-TH", {
